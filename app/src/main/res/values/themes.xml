@@ -1,0 +1,39 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Centric" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:fontFamily">@font/bahn</item>
+        <item name="bottomNavigationStyle">@style/BottomNavigationStyle</item>
+    </style>
+
+    <style name="Theme.Centric" parent="Base.Theme.Centric" />
+
+    <style name="BottomNavigationStyle" parent="Widget.Design.BottomNavigationView">
+        <item name="itemTextAppearanceActive">@style/BottomNavTextAppearance</item>
+        <item name="itemTextAppearanceInactive">@style/BottomNavTextAppearance</item>
+    </style>
+
+    <style name="BottomNavTextAppearance" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="profileCorner" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">15dp</item>
+    </style>
+
+    <style name="profileCorner2" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">75dp</item>
+    </style>
+
+    <style name="profileCorner3" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">130dp</item>
+    </style>
+
+    <style name="bookCorner" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">15dp</item>
+    </style>
+</resources>

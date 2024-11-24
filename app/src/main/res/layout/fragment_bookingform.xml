@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".bookingformFragment"
+    android:background="@color/white">
+
+    <ImageView
+        android:id="@+id/imageView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/booking_form_bg1"
+        app:layout_constraintEnd_toEndOf="@+id/imageView13"
+        app:layout_constraintStart_toStartOf="@+id/imageView13"
+        app:layout_constraintTop_toTopOf="@+id/imageView13" />
+
+    <ImageView
+        android:id="@+id/imageView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/booking_form_bg2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:id="@+id/scrollView3"
+        android:layout_width="385dp"
+        android:layout_height="640dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="200dp"
+        android:fillViewport="true"
+        app:layout_constraintStart_toStartOf="@+id/imageView13"
+        app:layout_constraintTop_toTopOf="@+id/imageView13">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/bookformAsk1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="When will you be booking?"
+                android:textColor="@color/black"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/bookformDatebg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/booking_form_date"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bookformAsk1" />
+
+            <EditText
+                android:id="@+id/bookformDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:background="@null"
+                android:clickable="true"
+                android:ems="8"
+                android:focusable="false"
+                android:hint="Select date and time"
+                android:inputType="none"
+                android:textSize="15sp"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@+id/bookformDatebg"
+                app:layout_constraintStart_toStartOf="@+id/bookformDatebg"
+                app:layout_constraintTop_toTopOf="@+id/bookformDatebg" />
+
+            <ImageView
+                android:id="@+id/bookformDateBtnbg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/booking_form_datebtn"
+                app:layout_constraintBottom_toBottomOf="@+id/bookformDatebg"
+                app:layout_constraintEnd_toEndOf="@+id/bookformDatebg"
+                app:layout_constraintTop_toTopOf="@+id/bookformDatebg" />
+
+            <ImageView
+                android:id="@+id/bookformDateBtn"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/booking_form_calendaric"
+                app:layout_constraintBottom_toBottomOf="@+id/bookformDateBtnbg"
+                app:layout_constraintEnd_toEndOf="@+id/bookformDateBtnbg"
+                app:layout_constraintStart_toStartOf="@+id/bookformDateBtnbg"
+                app:layout_constraintTop_toTopOf="@+id/bookformDateBtnbg"
+                app:tint="@color/dblue" />
+
+            <TextView
+                android:id="@+id/textView13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="28dp"
+                android:text="for"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bookformDatebg" />
+
+            <ImageView
+                android:id="@+id/imageView21"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:src="@drawable/booking_form_date_day"
+                app:layout_constraintBottom_toBottomOf="@+id/textView13"
+                app:layout_constraintStart_toEndOf="@+id/textView13"
+                app:layout_constraintTop_toTopOf="@+id/textView13" />
+
+            <EditText
+                android:id="@+id/bookformday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:ems="2"
+                android:hint="1"
+                android:clickable="false"
+                android:inputType="number|textNoSuggestions"
+                android:textAlignment="center"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView21"
+                app:layout_constraintEnd_toEndOf="@+id/imageView21"
+                app:layout_constraintStart_toStartOf="@+id/imageView21"
+                app:layout_constraintTop_toTopOf="@+id/imageView21" />
+
+            <ImageView
+                android:id="@+id/bookformdaysub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/booking_form_date_day_minus"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView21"
+                app:layout_constraintStart_toStartOf="@+id/imageView21"
+                app:layout_constraintTop_toTopOf="@+id/imageView21" />
+
+            <ImageView
+                android:id="@+id/bookformdayadd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/booking_form_date_day_add"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView21"
+                app:layout_constraintEnd_toEndOf="@+id/imageView21"
+                app:layout_constraintTop_toTopOf="@+id/imageView21" />
+
+            <TextView
+                android:id="@+id/textView14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="day/s"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView21"
+                app:layout_constraintStart_toEndOf="@+id/imageView21"
+                app:layout_constraintTop_toTopOf="@+id/imageView21" />
+
+            <TextView
+                android:id="@+id/bookformAsk2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Companion's Name (if applicable)"
+                android:textColor="@color/black"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView21" />
+
+
+            <LinearLayout
+                android:id="@+id/container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bookformAsk2">
+
+                <!-- Dynamic EditText with background -->
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/bookformCompName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/booking_form_comp"
+                        android:hint="Full name"
+                        android:paddingStart="12dp"
+                        android:textSize="16sp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/bookformCompAdd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/booking_form_date_day_add"
+                app:layout_constraintBottom_toBottomOf="@+id/container"
+                app:layout_constraintStart_toEndOf="@+id/container" />
+
+            <ImageView
+                android:id="@+id/bookformCompDel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/booking_form_date_day_minus"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@+id/bookformCompAdd"
+                app:layout_constraintStart_toEndOf="@+id/bookformCompAdd"
+                app:layout_constraintTop_toTopOf="@+id/bookformCompAdd" />
+
+
+            <TextView
+                android:id="@+id/bookformAsk3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Valid ID"
+                android:textColor="@color/black"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/container" />
+
+            <ImageView
+                android:id="@+id/bookformfieldID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/booking_form_id"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bookformAsk3" />
+
+            <ImageView
+                android:id="@+id/bookformcompBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/booking_form_datebtn"
+                app:layout_constraintBottom_toBottomOf="@+id/bookformfieldID"
+                app:layout_constraintEnd_toEndOf="@+id/bookformfieldID"
+                app:layout_constraintTop_toTopOf="@+id/bookformfieldID" />
+
+            <ImageView
+                android:id="@+id/bookformcompBtnIc"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/booking_form_id_file"
+                app:layout_constraintBottom_toBottomOf="@+id/bookformcompBtn"
+                app:layout_constraintEnd_toEndOf="@+id/bookformcompBtn"
+                app:layout_constraintStart_toStartOf="@+id/bookformcompBtn"
+                app:layout_constraintTop_toTopOf="@+id/bookformcompBtn"
+                app:tint="@color/dblue" />
+
+            <TextView
+                android:id="@+id/bookIDnote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="The photo of the valid ID will be used for identity verification\npurposes only. All information will be kept secure and confidential"
+                android:textColor="@color/black"
+                android:textSize="11sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bookformfieldID" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/idpicFrame"
+                android:layout_width="218dp"
+                android:layout_height="205dp"
+                android:layout_marginTop="10dp"
+                app:cardBackgroundColor="@color/lgray"
+                app:cardCornerRadius="15dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bookIDnote">
+
+                <ImageView
+                    android:id="@+id/profileEditCardBg"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/booking_form_id_file"
+                    app:tint="@color/dblue" />
+
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:id="@+id/view4"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/idpicFrame" />
+
+            <TextView
+                android:id="@+id/bookformcheck1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CHECK IN"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toTopOf="@+id/bookformcheck2"
+                app:layout_constraintStart_toStartOf="@+id/bookformcheck2" />
+
+            <TextView
+                android:id="@+id/bookformcheck3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="CURRENT CHECK OUT"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="@+id/bookformDatebg"
+                app:layout_constraintStart_toEndOf="@+id/bookformcheck2"
+                app:layout_constraintTop_toTopOf="@+id/bookformDatebg"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/bookformcheck2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="5dp"
+                android:text="10/25/2024 07:00"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="@+id/bookformDatebg"
+                app:layout_constraintStart_toEndOf="@+id/bookformDatebg" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <ImageView
+        android:id="@+id/bookformConfirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="34dp"
+        android:src="@drawable/booking_form_confirm"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/roombookName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="75dp"
+        android:text="ROOM 1"
+        android:textColor="@color/white"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/scrollView3"
+        app:layout_constraintTop_toTopOf="@+id/imageView13" />
+
+    <TextView
+        android:id="@+id/roombookName2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-10dp"
+        android:text="DOUBLE BED"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="@+id/roombookName"
+        app:layout_constraintTop_toBottomOf="@+id/roombookName"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

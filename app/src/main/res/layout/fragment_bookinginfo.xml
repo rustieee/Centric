@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".bookinginfoFragment"
+    android:background="@color/white">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="0dp"
+        android:layout_height="315dp"
+        android:layout_weight="1"
+        android:background="@color/blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/imageView11"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/imageView11"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageView
+        android:id="@+id/imageView11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-60dp"
+        android:src="@drawable/booking_info_bg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewPager" />
+
+    <ImageView
+        android:id="@+id/imageView12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:src="@drawable/booking_info_bg2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/booking_info_image_no"
+        app:layout_constraintBottom_toBottomOf="@+id/indicator"
+        app:layout_constraintEnd_toEndOf="@+id/indicator"
+        app:layout_constraintStart_toStartOf="@+id/indicator"
+        app:layout_constraintTop_toTopOf="@+id/indicator" />
+
+    <View
+        android:id="@+id/view3"
+        android:layout_width="0dp"
+        android:layout_height="180dp"
+        android:layout_marginBottom="50dp"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView12"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/imageView12" />
+
+    <TextView
+        android:id="@+id/indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="12dp"
+        android:text="1/5"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/imageView11"
+        app:layout_constraintEnd_toEndOf="@+id/imageView11"
+        app:layout_constraintHorizontal_bias="0.93"
+        app:layout_constraintStart_toStartOf="@+id/imageView11" />
+
+    <TextView
+        android:id="@+id/roomStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="25dp"
+        android:text="AVAILABLE"
+        android:textColor="@color/green"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/imageView11"
+        app:layout_constraintTop_toTopOf="@+id/imageView11" />
+
+    <TextView
+        android:id="@+id/roomPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="₱1,600.00"
+        android:textSize="25sp"
+        android:textColor="@color/blue"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/roomStatus"
+        app:layout_constraintTop_toBottomOf="@+id/roomStatus" />
+
+    <TextView
+        android:id="@+id/roomName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ROOM 1"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/roomPrice"
+        app:layout_constraintTop_toBottomOf="@+id/roomPrice" />
+
+    <TextView
+        android:id="@+id/roomName2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="DOUBLE BED"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/roomName3"
+        app:layout_constraintTop_toBottomOf="@+id/roomPrice" />
+
+    <TextView
+        android:id="@+id/roomName3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/roomName"
+        app:layout_constraintTop_toBottomOf="@+id/roomPrice" />
+
+    <TextView
+        android:id="@+id/roomDetail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="About the room\n\n
+Provides:\n
+- Double bed\n
+- Air-conditioned\n
+- 4 toothbrushes\n
+- 2 toothpaste\n
+- 2 soap\n
+- 2 towel\n
+- 4 bottled waters\n
+- Hot and cold shower\n
+- TV+ with ABS-CBN"
+        android:textSize="17sp"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="@+id/roomName"
+        app:layout_constraintTop_toBottomOf="@+id/roomName" />
+
+    <ImageView
+        android:id="@+id/bookNowbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="40dp"
+        android:src="@drawable/booking_info_bookbtn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bookInfoCancel" />
+
+    <TextView
+        android:id="@+id/checkDetail1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-2dp"
+        android:text="CHECK IN"
+        android:textAlignment="textEnd"
+        android:textColor="@color/orange"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/checkDetail2"
+        app:layout_constraintEnd_toEndOf="@+id/checkDetail2" />
+
+    <TextView
+        android:id="@+id/checkDetail2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="10/25/2024 07:00"
+        android:textAlignment="textEnd"
+        android:textColor="@color/orange"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/earlyinfobtn2"
+        app:layout_constraintEnd_toEndOf="@+id/bookInfoCancel" />
+
+    <ImageView
+        android:id="@+id/payinfobtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/booking_info_pay"
+        app:layout_constraintBottom_toBottomOf="@+id/bookNowbtn"
+        app:layout_constraintEnd_toStartOf="@+id/bookNowbtn"
+        app:layout_constraintTop_toTopOf="@+id/bookNowbtn" />
+
+    <ImageView
+        android:id="@+id/earlyinfobtn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/booking_info_early"
+        app:layout_constraintBottom_toTopOf="@+id/bookNowbtn"
+        app:layout_constraintEnd_toEndOf="@+id/bookNowbtn"
+        tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/bookInfoCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="40dp"
+        android:src="@drawable/booking_info_cancel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

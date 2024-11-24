@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".bookingFragment"
+    android:background="@color/white">
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="wrap_content"
+        android:layout_height="144dp"
+        android:src="@drawable/mainactivity2_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/bookmsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="65dp"
+            android:text="Booking Menu"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/bookroomframe"
+            android:layout_width="373dp"
+            android:layout_height="530dp"
+            android:layout_marginTop="28dp"
+            app:cardBackgroundColor="@color/lgray"
+            app:cardCornerRadius="16dp"
+            app:layout_constraintEnd_toEndOf="@+id/bookmsg"
+            app:layout_constraintStart_toStartOf="@+id/bookmsg"
+            app:layout_constraintTop_toBottomOf="@+id/bookmsg">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/bookroomtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Rooms"
+                    android:textColor="@color/black"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/bookroom1btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/home_room1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/bookroomtitle"
+                    app:shapeAppearanceOverlay="@style/bookCorner" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="330dp"
+                    android:layout_height="95dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/bookroom1btn"
+                    app:layout_constraintEnd_toEndOf="@+id/bookroom1btn"
+                    app:layout_constraintStart_toStartOf="@+id/bookroom1btn"
+                    app:layout_constraintTop_toTopOf="@+id/bookroom1btn">
+
+                    <View
+                        android:id="@+id/r_s1"
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/green"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookroom1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="ROOM 1 - Double Bed"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@+id/r_s1"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookstatus1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="AVAILABLE"
+                        android:textColor="@color/green"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toTopOf="@+id/bookprice1"
+                        app:layout_constraintStart_toEndOf="@+id/r_s1" />
+
+                    <TextView
+                        android:id="@+id/bookprice1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="₱1,600.00"
+                        android:textColor="@color/blue"
+                        android:textSize="25sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/r_s1" />
+
+                    <ImageView
+                        android:id="@+id/bookcheckbg1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/home_book2_checkin"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookcheckdate1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="10/25/2024 07:00"
+                        android:textColor="@color/black"
+                        android:textSize="11sp"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="@+id/bookcheckbg1"
+                        app:layout_constraintStart_toStartOf="@+id/bookcheckbg1"
+                        app:layout_constraintTop_toTopOf="@+id/bookcheckbg1" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/bookroom2btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/home_room1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/bookroom1btn"
+                    app:shapeAppearanceOverlay="@style/bookCorner" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="330dp"
+                    android:layout_height="95dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/bookroom2btn"
+                    app:layout_constraintEnd_toEndOf="@+id/bookroom2btn"
+                    app:layout_constraintStart_toStartOf="@+id/bookroom2btn"
+                    app:layout_constraintTop_toTopOf="@+id/bookroom2btn">
+
+                    <View
+                        android:id="@+id/r_s2"
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/orange"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookroom2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="ROOM 2 - Double Bed"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@+id/r_s2"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookstatus2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="RESERVED"
+                        android:textColor="@color/orange"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toTopOf="@+id/bookprice2"
+                        app:layout_constraintStart_toEndOf="@+id/r_s2" />
+
+                    <TextView
+                        android:id="@+id/bookprice2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="₱1,600.00"
+                        android:textColor="@color/blue"
+                        android:textSize="25sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/r_s2" />
+
+                    <ImageView
+                        android:id="@+id/bookcheckbg2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/home_book2_checkin"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookcheckdate2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="10/25/2024 07:00"
+                        android:textColor="@color/black"
+                        android:textSize="11sp"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="@+id/bookcheckbg2"
+                        app:layout_constraintStart_toStartOf="@+id/bookcheckbg2"
+                        app:layout_constraintTop_toTopOf="@+id/bookcheckbg2" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/bookroom3btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/home_room1_res"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/bookroom2btn"
+                    app:shapeAppearanceOverlay="@style/bookCorner" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="330dp"
+                    android:layout_height="95dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/bookroom3btn"
+                    app:layout_constraintEnd_toEndOf="@+id/bookroom3btn"
+                    app:layout_constraintStart_toStartOf="@+id/bookroom3btn"
+                    app:layout_constraintTop_toTopOf="@+id/bookroom3btn">
+
+                    <View
+                        android:id="@+id/r_s3"
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookroom3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="ROOM 3 - Single Bed"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@+id/r_s3"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookstatus3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="YOU MADE A RESERVATION\nTO THIS ROOM"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toTopOf="@+id/bookprice3"
+                        app:layout_constraintStart_toEndOf="@+id/r_s3" />
+
+                    <TextView
+                        android:id="@+id/bookprice3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="₱1,100.00"
+                        android:textColor="@color/white"
+                        android:textSize="25sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/r_s3" />
+
+                    <ImageView
+                        android:id="@+id/bookcheckbg3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/home_book2_checkin"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookcheckdate3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="10/25/2024 07:00"
+                        android:textColor="@color/black"
+                        android:textSize="11sp"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="@+id/bookcheckbg3"
+                        app:layout_constraintStart_toStartOf="@+id/bookcheckbg3"
+                        app:layout_constraintTop_toTopOf="@+id/bookcheckbg3" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/bookroom4btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/home_room1_occ"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/bookroom3btn"
+                    app:shapeAppearanceOverlay="@style/bookCorner" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="330dp"
+                    android:layout_height="95dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/bookroom4btn"
+                    app:layout_constraintEnd_toEndOf="@+id/bookroom4btn"
+                    app:layout_constraintStart_toStartOf="@+id/bookroom4btn"
+                    app:layout_constraintTop_toTopOf="@+id/bookroom4btn">
+
+                    <View
+                        android:id="@+id/r_s4"
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookroom4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:text="ROOM 4 - Single Bed"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@+id/r_s4"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookstatus4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="YOU ARE OCCUPYING\nTHIS ROOM"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toTopOf="@+id/bookprice4"
+                        app:layout_constraintStart_toEndOf="@+id/r_s4" />
+
+                    <TextView
+                        android:id="@+id/bookprice4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="₱1,100.00"
+                        android:textColor="@color/white"
+                        android:textSize="25sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/r_s4" />
+
+                    <ImageView
+                        android:id="@+id/bookcheckbg4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/home_book3_checkout"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/bookcheckdate4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="10/25/2024 07:00"
+                        android:textColor="@color/black"
+                        android:textSize="11sp"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="@+id/bookcheckbg4"
+                        app:layout_constraintStart_toStartOf="@+id/bookcheckbg4"
+                        app:layout_constraintTop_toTopOf="@+id/bookcheckbg4" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
