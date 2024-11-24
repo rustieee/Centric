@@ -10,10 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.finals.centric.databinding.FragmentProfileBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
@@ -23,12 +23,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
  */
 public class profileFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private FirebaseUser user;
@@ -38,20 +35,12 @@ public class profileFragment extends Fragment {
     private String birthdate;
     private String address;
     private String username;
+    private String profilePicUrl; // Variable to hold the profile picture URL
 
     public profileFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment profileFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static profileFragment newInstance(String param1, String param2) {
         profileFragment fragment = new profileFragment();
         Bundle args = new Bundle();
@@ -83,34 +72,40 @@ public class profileFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         user = auth.getCurrentUser();
 
+        // Fetch user data from Firestore
         db.collection("users").document(user.getUid()).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                        // Fetch data from Firestore document
-                        firstName = documentSnapshot.getString("first_name");
-                        lastName = documentSnapshot.getString("last_name");
-                        phoneNumber = documentSnapshot.getString("phone_number");
-                        birthdate = documentSnapshot.getString("birthdate");
-                        address = documentSnapshot.getString("address");
-                        username = documentSnapshot.getString("username");
+                    // Fetch data from Firestore document
+                    firstName = documentSnapshot.getString("first_name");
+                    lastName = documentSnapshot.getString("last_name");
+                    phoneNumber = documentSnapshot.getString("phone_number");
+                    birthdate = documentSnapshot.getString("birthdate");
+                    address = documentSnapshot.getString("address");
+                    username = documentSnapshot.getString("username");
+                    profilePicUrl = documentSnapshot.getString("profilePicUrl"); // Fetch profile picture URL
 
-                        binding.profileChangeName.setText(firstName + " " + lastName);
-                        binding.profileChangeUserame.setText(username);
-                        binding.profileChangeEmail.setText(user.getEmail());
-                        binding.profileChangePhone.setText(phoneNumber);
-                        binding.profileChangeBday.setText(birthdate);
+                    // Set the fetched data to views
+                    binding.profileChangeName.setText(firstName + " " + lastName);
+                    binding.profileChangeUserame.setText(username);
+                    binding.profileChangeEmail.setText(user.getEmail());
+                    binding.profileChangePhone.setText(phoneNumber);
+                    binding.profileChangeBday.setText(birthdate);
                     if (address != null && !address.isEmpty()) {
                         String[] addressParts = address.split(",");
-
-                        // Ensure the address has exactly 3 parts (Street, City, Province)
                         if (addressParts.length == 3) {
-                            binding.profileChangeLocation.setText(addressParts[0].trim() +"\n"+ addressParts[1].trim() +","+ addressParts[2].trim()); // Street
+                            binding.profileChangeLocation.setText(addressParts[0].trim() + "\n" + addressParts[1].trim() + "," + addressParts[2].trim());
                         } else {
-                            // Optionally, you can set default values or leave fields blank
                             binding.profileChangeLocation.setText("");
                         }
                     } else {
-                        // Handle the case when the address is null or empty
                         binding.profileChangeLocation.setText("");
+                    }
+
+                    // Load profile picture using Glide
+                    if (profilePicUrl != null) {
+                        Glide.with(this)
+                                .load(profilePicUrl)
+                                .into(binding.profileChangebase); // Assuming you have an ImageView with this ID
                     }
                 });
 
@@ -119,16 +114,11 @@ public class profileFragment extends Fragment {
         setButtonAnimation(binding.logoutBtn, () -> {
             // Sign out the user
             FirebaseAuth.getInstance().signOut();
-
-            // Create an intent to go to the MainActivity2
             Intent intent = new Intent(requireActivity(), MainActivity.class);
             startActivity(intent);
             requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-
-            // Optionally, you can finish the current activity if needed
             requireActivity().finish();
         });
-
 
         setButtonAnimation2(binding.nameBtn, () -> openProfileEditFragment("name"));
         setButtonAnimation2(binding.usernameBtn, () -> openProfileEditFragment("username"));
@@ -152,7 +142,7 @@ public class profileFragment extends Fragment {
                                 .scaleX(1f)
                                 .scaleY(1f)
                                 .setDuration(100)
-                                .withEndAction(onClickAction) // Execute the passed action after scaling back
+                                .withEndAction(onClickAction)
                                 .start();
                     })
                     .start();
@@ -162,13 +152,13 @@ public class profileFragment extends Fragment {
     private void setButtonAnimation2(View button, Runnable onClickAction) {
         button.setOnClickListener(v -> {
             v.animate()
-                    .translationX(20f)  // Slide the button slightly to the right
+                    .translationX(20f)
                     .setDuration(100)
                     .withEndAction(() -> {
                         v.animate()
                                 .translationX(0f)
                                 .setDuration(100)
-                                .withEndAction(onClickAction) // Execute the passed action after scaling back
+                                .withEndAction(onClickAction)
                                 .start();
                     })
                     .start();
@@ -178,15 +168,13 @@ public class profileFragment extends Fragment {
     private void replaceFragment(Fragment fragment) {
         getParentFragmentManager().beginTransaction()
                 .replace(R.id.mainframe, fragment)
-                .addToBackStack(null)  // Add to back stack to allow "back" navigation
+                .addToBackStack(null)
                 .commit();
     }
 
     private void openProfileEditFragment(String type) {
         Bundle args = new Bundle();
         args.putString("editType", type);
-
-        // Replace fragment and pass arguments
         profileEditFragment editFragment = new profileEditFragment();
         editFragment.setArguments(args);
         replaceFragment(editFragment);

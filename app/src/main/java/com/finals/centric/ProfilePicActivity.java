@@ -16,9 +16,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.finals.centric.databinding.ActivityProfilePicBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,13 +26,12 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.UUID;
 
 public class ProfilePicActivity extends AppCompatActivity {
 
     ActivityProfilePicBinding binding;
-    Uri selectedImageUri;
+    Bitmap selectedBitmap;
     FirebaseAuth auth;
     FirebaseUser currentUser;
     FirebaseStorage storage;
@@ -52,6 +48,7 @@ public class ProfilePicActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         storageReference = storage.getReference();
         setContentView(binding.getRoot());
+        binding.imageView8.setImageResource(R.drawable.profile_pic);
 
         binding.complete.setOnClickListener(v -> {
             v.animate()
@@ -64,9 +61,16 @@ public class ProfilePicActivity extends AppCompatActivity {
                                 .scaleY(1f)
                                 .setDuration(100)
                                 .start();
-                        Intent intent = new Intent(this, MainActivity2.class);
-                        startActivity(intent);
-                        finish();
+
+                        // Proceed to the next activity regardless of the selectedBitmap
+                        if (selectedBitmap != null) {
+                            uploadProfilePicture(selectedBitmap); // Upload the selected Bitmap
+                        } else {
+                            // If no picture is selected, just navigate to the next activity
+                            Intent intent = new Intent(ProfilePicActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
                     })
                     .start();
         });
@@ -111,10 +115,10 @@ public class ProfilePicActivity extends AppCompatActivity {
     private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    selectedImageUri = result.getData().getData();
+                    Uri selectedImageUri = result.getData().getData();
                     try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
-                        binding.imageView8.setImageBitmap(bitmap);
+                        selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                        binding.imageView8.setImageBitmap(selectedBitmap);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -122,59 +126,40 @@ public class ProfilePicActivity extends AppCompatActivity {
             });
 
     // Launch camera to take a picture
-    // Launch camera to take a picture
     private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    Bitmap photo = (Bitmap) result.getData().getExtras().get("data");
-                    binding.imageView8.setImageBitmap(photo);
-
-                    // Save the image to MediaStore (Shared Storage)
-                    Uri photoUri = saveImageToMediaStore(photo);
-                    if (photoUri != null) {
-                        // Upload to Firebase Storage if you want
-                        //uploadProfilePicture(photoUri);
-                    }
+                    selectedBitmap = (Bitmap) result.getData().getExtras().get("data");
+                    binding.imageView8.setImageBitmap(selectedBitmap);
                 }
             });
 
-    // Save image to MediaStore (Shared Storage)
-    private Uri saveImageToMediaStore(Bitmap bitmap) {
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, "profile_pic.jpg"); // You can change the name
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/MyApp"); // Custom folder
-
-        ContentResolver resolver = getContentResolver();
-        Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-        try (OutputStream stream = resolver.openOutputStream(uri)) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);  // Save the image as JPEG
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return uri;  // Return the Uri of the saved image
-    }
-
-
     // Upload Profile Picture to Firebase Storage
-    private void uploadProfilePicture(Uri imageUri) {
-        String fileName = UUID.randomUUID().toString(); // Unique file name
-        StorageReference profilePicRef = storageReference.child("profile_pics/" + currentUser.getUid() + "/" + fileName);
+    private void uploadProfilePicture(Bitmap bitmap) {
+        if (bitmap != null) {
+            // Convert Bitmap to ByteArray
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
 
-        profilePicRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    // Get the download URL
-                    profilePicRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        String imageUrl = uri.toString();
-                        saveImageUrlToFirestore(imageUrl);  // Save URL in Firestore
+            String fileName = UUID.randomUUID().toString(); // Unique file name
+            StorageReference profilePicRef = storageReference.child("profile_pics/" + currentUser.getUid() + "/" + fileName);
+
+            profilePicRef.putBytes(data)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Get the download URL
+                        profilePicRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String imageUrl = uri.toString();
+                            saveImageUrlToFirestore(imageUrl);  // Save URL in Firestore
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("ProfilePicActivity", "Upload failed", e);
+                        Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                     });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("ProfilePicActivity", "Upload failed", e);
-                    Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                });
+        } else {
+            Toast.makeText(this, "Please select a profile picture first", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // Save Image URL to Firestore

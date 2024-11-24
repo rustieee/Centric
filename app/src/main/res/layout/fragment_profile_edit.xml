@@ -21,17 +21,16 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/profileLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="155dp"
+        android:layout_height="155dp"
         android:layout_marginTop="55dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
-            android:layout_width="155dp"
-            android:layout_height="155dp"
-            android:layout_margin="5dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             app:cardCornerRadius="75dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,13 +39,15 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_margin="3dp">
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/profileChangebase"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:src="@drawable/profile_base"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/profile_pic"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

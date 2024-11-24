@@ -2,6 +2,8 @@ package com.finals.centric;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -12,18 +14,23 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.finals.centric.databinding.ActivityMain2Binding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
-import java.util.Map;
-import android.view.View;
-
 
 public class MainActivity2 extends AppCompatActivity {
 
     private ActivityMain2Binding binding;
     private HashMap<Integer, Fragment> fragmentMapping = new HashMap<>();
     private int currentMenuItemId = R.id.home;
+    private FirebaseAuth auth;
+    private FirebaseUser currentUser;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +38,11 @@ public class MainActivity2 extends AppCompatActivity {
         EdgeToEdge.enable(this);
         binding = ActivityMain2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        auth = FirebaseAuth.getInstance();
+        currentUser = auth.getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+
         updateBackStackListener();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -38,7 +50,7 @@ public class MainActivity2 extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+        binding.profilebase.setImageResource(R.drawable.profile_pic);
         initializeFragments();
         replaceFragment(fragmentMapping.get(currentMenuItemId)); // Start with homeFragment fragment
 
@@ -64,15 +76,35 @@ public class MainActivity2 extends AppCompatActivity {
             }
         });
 
-        binding.profilebase.setOnClickListener(v -> {
+        binding.constraintLayout4.setOnClickListener(v -> {
             setButtonAnimation(v, () -> {
                 int profileMenuId = R.id.profile;
                 setActiveMenuItem(profileMenuId); // Set the active menu item to profile
                 replaceFragment(fragmentMapping.get(profileMenuId)); // Switch to profileFragment
             });
         });
+        loadUserProfilePicture(); // Load the user's profile picture
+    }
 
-
+    private void loadUserProfilePicture() {
+        if (currentUser != null) {
+            db.collection("users").document(currentUser.getUid())
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                String profilePicUrl = document.getString("profilePicUrl");
+                                if (profilePicUrl != null) {
+                                    ImageView profileImageView = binding.profilebase.findViewById(R.id.profilebase); // Assuming you have an ImageView with this ID
+                                    Glide.with(this)
+                                            .load(profilePicUrl)
+                                            .into(profileImageView); // Load the profile picture using Glide
+                                }
+                            }
+                        }
+                    });
+        }
     }
 
     private void updateBackStackListener() {
@@ -123,9 +155,9 @@ public class MainActivity2 extends AppCompatActivity {
 
         // Check if the active menu is profile
         if (menuItemId == R.id.profile) {
-            binding.profilebase.setVisibility(View.GONE); // Hide profilebase
+            binding.constraintLayout4.setVisibility(View.GONE); // Hide profilebase
         } else {
-            binding.profilebase.setVisibility(View.VISIBLE); // Show profilebase
+            binding.constraintLayout4.setVisibility(View.VISIBLE); // Show profilebase
         }
 
         if (activeItem != null) {
@@ -151,12 +183,4 @@ public class MainActivity2 extends AppCompatActivity {
                 })
                 .start();
     }
-
 }
-
-
-
-
-
-
-

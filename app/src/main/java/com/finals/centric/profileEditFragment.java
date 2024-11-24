@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.finals.centric.databinding.FragmentProfileEditBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -40,6 +41,7 @@ public class profileEditFragment extends Fragment {
     private String birthdate;
     private String address;
     private String username;
+    private String profilePicUrl; // Variable to hold the profile picture URL
 
     public profileEditFragment() {
         // Required empty public constructor
@@ -85,6 +87,7 @@ public class profileEditFragment extends Fragment {
         user = auth.getCurrentUser();
         String editType = getArguments() != null ? getArguments().getString("editType") : "";
         updateUI(editType);
+        fetchUserData();
 
         binding.newField4Calendar.setOnClickListener(v -> {setButtonAnimation(binding.newField4Calendar, this::openDate);});
         binding.newField4CalendarIc.setOnClickListener(v -> {setButtonAnimation(binding.newField4CalendarIc, this::openDate);});
@@ -152,8 +155,6 @@ public class profileEditFragment extends Fragment {
             updateUserData(editType, updatedValue1, updatedValue2, updatedValue3, updatedValue4);
             replaceFragment(new profileFragment()); // Navigate back to the profile fragment
         });
-
-        fetchUserData();
 
         return binding.getRoot();
     }
@@ -237,7 +238,6 @@ public class profileEditFragment extends Fragment {
         }
     }
 
-
     private void fetchUserData() {
         if (user != null) {
             // Get the user document from Firestore using UID
@@ -251,13 +251,19 @@ public class profileEditFragment extends Fragment {
                             birthdate = documentSnapshot.getString("birthdate");
                             address = documentSnapshot.getString("address");
                             username = documentSnapshot.getString("username");
+                            profilePicUrl = documentSnapshot.getString("profilePicUrl"); // Fetch profile picture URL
 
-                            // After fetching the data, update the UI
-                            String editType = getArguments() != null ? getArguments().getString("editType") : "";
-                            updateUI(editType); // Now update the UI after fetching data
+                            // Load profile picture using Glide
+                            if (profilePicUrl != null) {
+                                Glide.with(this)
+                                        .load(profilePicUrl)
+                                        .into(binding.profileChangebase); // Assuming you have an ImageView with this ID
+                            }
+
+                            // Update UI with fetched data
+                            updateUI(getArguments() != null ? getArguments().getString("editType") : "");
                         } else {
                             // Handle the case where the document does not exist
-                            // Possibly show a message to the user
                         }
                     })
                     .addOnFailureListener(e -> {
