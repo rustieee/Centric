@@ -240,13 +240,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="BOOK NOW"
+                        android:text="BOOKING STATUS TODAY"
                         android:textColor="@color/black"
                         android:textSize="22sp"
                         android:textStyle="bold"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.1"
-                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintStart_toStartOf="@+id/room1btn"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.imageview.ShapeableImageView

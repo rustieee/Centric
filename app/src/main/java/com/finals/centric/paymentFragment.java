@@ -134,8 +134,8 @@ public class paymentFragment extends Fragment {
     private void deleteBillData(String roomId) {
         // Fetch and delete the user's bill
         db.collection("bills")
-                .whereEqualTo("userId", user.getUid())
-                .whereEqualTo("roomId", roomId)
+                .whereEqualTo("user_id", user.getUid())
+                .whereEqualTo("room_id", roomId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
@@ -148,7 +148,6 @@ public class paymentFragment extends Fragment {
                                     .addOnSuccessListener(aVoid -> {
                                         // Hide the payment card layout
                                         profileEditCardLayout.setVisibility(View.GONE);
-                                        showSuccessMessage("Booking and associated data canceled successfully.");
                                     })
                                     .addOnFailureListener(e -> {
                                         // Handle failure to delete bill
@@ -173,51 +172,31 @@ public class paymentFragment extends Fragment {
     }
 
     private void fetchBillData() {
-        // Fetch bill related to the current user
         db.collection("bills")
-                .whereEqualTo("userId", user.getUid())
+                .whereEqualTo("user_id", user.getUid())  // Changed from userId to user_id
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         boolean hasPendingPayment = false;
 
-                        // Iterate through documents to find any pending payment
                         for (QueryDocumentSnapshot billDoc : task.getResult()) {
-                            String paymentStatus = billDoc.getString("paymentStatus");
+                            String paymentStatus = billDoc.getString("payment_status");  // Changed from paymentStatus
 
-                            // Check if the paymentStatus is "pending"
-                            if ("pending".equalsIgnoreCase(paymentStatus)) {
+                            if ("Pending".equals(paymentStatus)) {  // Match exact case
                                 hasPendingPayment = true;
-                                break; // Stop checking further as we found a pending payment
-                            }
-                        }
-
-                        // Set visibility based on pending payment status
-                        if (hasPendingPayment) {
-                            profileEditCardLayout.setVisibility(View.VISIBLE);
-                        } else {
-                            profileEditCardLayout.setVisibility(View.GONE);
-                        }
-
-                        // Update room details if there's a pending payment
-                        if (hasPendingPayment) {
-                            for (QueryDocumentSnapshot billDoc : task.getResult()) {
-                                String roomId = billDoc.getString("roomId");
-                                String checkInDate = billDoc.getString("checkinDate");
-                                String checkOutDate = billDoc.getString("checkoutDate");
+                                String roomId = billDoc.getString("room_id");  // Changed from roomId
+                                String checkInDate = billDoc.getString("check_in_date");  // Changed from checkinDate
+                                String checkOutDate = billDoc.getString("check_out_date");  // Changed from checkoutDate
                                 updateRoomDetails(roomId, checkInDate, checkOutDate);
+                                break;
                             }
                         }
-                    } else {
-                        // Task failed or no results, hide the layout
-                        profileEditCardLayout.setVisibility(View.GONE);
+
+                        profileEditCardLayout.setVisibility(hasPendingPayment ? View.VISIBLE : View.GONE);
                     }
-                })
-                .addOnFailureListener(e -> {
-                    // In case of error, also hide the layout
-                    profileEditCardLayout.setVisibility(View.GONE);
                 });
     }
+
 
 
     private void updateRoomDetails(String roomId, String checkInDate, String checkOutDate) {

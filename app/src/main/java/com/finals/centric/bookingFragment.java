@@ -22,6 +22,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link bookingFragment#newInstance} factory method to
@@ -124,32 +129,43 @@ public class bookingFragment extends Fragment {
                         String checkinDate = null;
                         String checkoutDate = null;
 
+                        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+                        Date currentDate = new Date();
+
                         for (QueryDocumentSnapshot bookingDoc : task.getResult()) {
                             String status = bookingDoc.getString("status");
                             String userId = bookingDoc.getString("user_id");
+                            String bookingCheckIn = bookingDoc.getString("check_in_date");
+                            String bookingCheckOut = bookingDoc.getString("check_out_date");
 
-                            // Fetch check-in and check-out dates
-                            checkinDate = bookingDoc.getString("check_in_date");
-                            checkoutDate = bookingDoc.getString("check_out_date");
-
-                            if ("RESERVED".equals(status)) {
-                                if (user.getUid().equals(userId)) {
+                            if (user.getUid().equals(userId)) {
+                                // Current user's bookings show regardless of date
+                                if ("RESERVED".equals(status)) {
                                     isReservedByCurrentUser = true;
-                                } else {
-                                    isReservedByOtherUser = true;
-                                }
-                            } else if ("OCCUPIED".equals(status)) {
-                                if (user.getUid().equals(userId)) {
+                                    checkinDate = bookingCheckIn;
+                                    checkoutDate = bookingCheckOut;
+                                } else if ("OCCUPIED".equals(status)) {
                                     isOccupiedByCurrentUser = true;
+                                    checkinDate = bookingCheckIn;
+                                    checkoutDate = bookingCheckOut;
+                                }
+                            } else {
+                                // Other users' bookings only show when within date range
+                                try {
+                                    Date checkIn = sdf.parse(bookingCheckIn);
+                                    Date checkOut = sdf.parse(bookingCheckOut);
+                                    if (currentDate.compareTo(checkIn) >= 0 && currentDate.compareTo(checkOut) <= 0) {
+                                        isReservedByOtherUser = true;
+                                    }
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
                                 }
                             }
                         }
 
-                        // Update roomInfo with check-in and check-out dates
                         roomInfo.setCheckin(checkinDate);
                         roomInfo.setCheckout(checkoutDate);
 
-                        // Set room status based on user and booking status
                         if (isOccupiedByCurrentUser) {
                             roomInfo.setStatus("YOU ARE OCCUPYING THIS ROOM");
                         } else if (isReservedByCurrentUser) {
@@ -160,7 +176,6 @@ public class bookingFragment extends Fragment {
                             roomInfo.setStatus("AVAILABLE");
                         }
 
-                        // Update the UI after setting the status and check-in/check-out
                         updateRoomInfo(roomIndex, roomInfo);
                     }
                 });

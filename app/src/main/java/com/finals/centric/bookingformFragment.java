@@ -127,7 +127,6 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
                     binding.bookformcompBtnIc.setVisibility(View.GONE);
                     binding.idpicFrame.setVisibility(View.GONE);
                     binding.bookIDnote.setVisibility(View.GONE);
-                    binding.bookformcheck3.setVisibility(View.GONE);
                     binding.bookformcheck2.setText(checkin);
                     break;
                 case "YOU ARE OCCUPYING THIS ROOM":
@@ -143,10 +142,8 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
                     binding.bookformcompBtnIc.setVisibility(View.GONE);
                     binding.idpicFrame.setVisibility(View.GONE);
                     binding.bookIDnote.setVisibility(View.GONE);
-                    binding.bookformcheck1.setVisibility(View.GONE);
+                    binding.bookformcheck1.setText("CURRENT CHECK OUT");
                     binding.bookformcheck2.setVisibility(View.GONE);
-                    binding.bookformDateBtnbg.setVisibility(View.GONE);
-                    binding.bookformDateBtn.setVisibility(View.GONE);
                     binding.bookformDate.setText(checkout);
                     binding.bookformDate.setEnabled(false);
                     if (binding.bookformday.getText().toString().isEmpty()) {
@@ -160,7 +157,6 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
                     updateButtonVisibility();
                     binding.bookformcheck1.setVisibility(View.GONE);
                     binding.bookformcheck2.setVisibility(View.GONE);
-                    binding.bookformcheck3.setVisibility(View.GONE);
             }
         }
 
@@ -170,8 +166,16 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
         this.bookformCompDel = binding.bookformCompDel;
 
         // Set initial visibility
-        binding.bookformDate.setOnClickListener(v -> animateButton(v, this::openDate));
-        binding.bookformDateBtn.setOnClickListener(v -> animateButton(v, this::openDate));
+        setupCalendarView();
+        setDefaultDate();
+
+
+        // Add this to ensure calculation happens when fragment is first loaded
+        binding.bookformDate.post(() -> {
+            updateDays(0);
+        });
+        binding.bookformtime.setOnClickListener(v -> showTimePickerDialog());
+        binding.bookformtimeopen.setOnClickListener(v -> showTimePickerDialog());
         binding.bookformdaysub.setOnClickListener(v -> animateButton(v, () -> updateDays(-1)));
         binding.bookformdayadd.setOnClickListener(v -> animateButton(v, () -> updateDays(1)));
 
@@ -181,39 +185,26 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
 
         // Set click listener for confirming the bookingFragment
         binding.bookformConfirm.setOnClickListener(v -> animateButton(v, () -> {
-            // Get data from the form
+            // Validate time is set
+            String timeText = binding.bookformtime.getText().toString();
+            if (timeText.isEmpty()) {
+                if (isAdded() && getContext() != null) {
+                    Toast.makeText(requireContext(), "Please select a time", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
             String checkinDate = binding.bookformDate.getText().toString();
-            String checkoutDate = calculatedCheckoutDate; // Use the calculated checkout date here
-            String roomId = getArguments().getString("roomId");  // Get the roomId from arguments
-            String userId = user.getUid();  // Get the user ID from FirebaseAuth
+            String checkinTime = binding.bookformtime.getText().toString();
+            String combinedCheckinDateTime = checkinDate + " " + checkinTime;
+            String checkoutDate = calculatedCheckoutDate; // This should already be in the full datetime format
+            String roomId = getArguments().getString("roomId");
+            String userId = user.getUid();
 
             if (checkinDate.isEmpty()) {
                 Toast.makeText(getContext(), "Please enter a check-in date", Toast.LENGTH_SHORT).show();
                 return; // Exit if check-in date is not provided
             }
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm"); // Adjust the date format as needed
-            try {
-                Date checkin = dateFormat.parse(checkinDate);
-                Calendar today = Calendar.getInstance(); // Current date
-                Calendar maxCheckin = Calendar.getInstance();
-                maxCheckin.add(Calendar.DAY_OF_MONTH, 15); // 15 days from today
-
-                // Validate check-in date is between today and 15 days from now
-                if (checkin.before(today.getTime())) {
-                    Toast.makeText(getContext(), "Check-in date cannot be in the past", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (checkin.after(maxCheckin.getTime())) {
-                    Toast.makeText(getContext(), "Reservation can only be up to 15 days from today", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-            } catch (ParseException e) {
-                Toast.makeText(getContext(), "Invalid check-in date format", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
             // Collect companion names from the dynamic fields
             List<String> companions = new ArrayList<>();
@@ -240,11 +231,6 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
                 status = "RESERVED"; // Default status, can be customized
             }
 
-            // Get the price for the room stay
-            double price = calculatePrice(checkinDate, checkoutDate);
-            String paymentStatus = "Pending";  // Default payment status
-            String paymentMethod = null;  // Replace with actual payment method if applicable
-            String paymentReceiptUrl = null; // Can be set after payment confirmation
 
             // Check if the form corresponds to an update or new booking
             db.collection("booking")
@@ -255,50 +241,58 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
                         if (!querySnapshot.isEmpty()) {
                             // Document found, update it
                             String bookingId = querySnapshot.getDocuments().get(0).getId();  // Get the document ID
+                            // Update booking with combined datetime
+                            Map<String, Object> updateData = new HashMap<>();
+                            updateData.put("check_in_date", combinedCheckinDateTime);
+                            updateData.put("check_out_date", checkoutDate);
+                            updateData.put("status", status);
+                            updateData.put("companions", companions);
+
                             db.collection("booking").document(bookingId)
-                                    .update("check_in_date", checkinDate,
-                                            "check_out_date", checkoutDate,
-                                            "status", status,
-                                            "companions", companions)
+                                    .update(updateData)
                                     .addOnSuccessListener(aVoid -> {
-                                        // Successfully updated booking
-                                        Toast.makeText(getContext(), "Booking updated", Toast.LENGTH_SHORT).show();
+                                        // Safely show Toast with context checking
+                                        if (isAdded() && getContext() != null) {
+                                            Toast.makeText(requireContext(), "Booking updated", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Log.e("BookingFormFragment", "Cannot show Toast - fragment not attached");
+                                        }
+
+                                        // Create or update bill with new datetime
+                                        createOrUpdateBill(
+                                                bookingId,
+                                                roomId,
+                                                userId,
+                                                combinedCheckinDateTime,
+                                                checkoutDate,
+                                                calculatePrice(combinedCheckinDateTime, checkoutDate),
+                                                "Pending",
+                                                null,
+                                                null
+                                        );
                                     })
                                     .addOnFailureListener(e -> {
-                                        // Error updating booking
-                                        Toast.makeText(getContext(), "Failed to update booking", Toast.LENGTH_SHORT).show();
+                                        if (isAdded() && getContext() != null) {
+                                            Toast.makeText(requireContext(), "Failed to update booking", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Log.e("BookingFormFragment", "Cannot show error Toast - fragment not attached");
+                                        }
                                     });
-
-                            // Call createOrUpdateBill for the updated booking
-                            createOrUpdateBill(
-                                    bookingId,  // Use the existing booking ID
-                                    roomId,
-                                    userId,
-                                    checkinDate,
-                                    checkoutDate,
-                                    price,
-                                    paymentStatus,
-                                    paymentMethod,
-                                    paymentReceiptUrl
-                            );
-
                         } else {
                             // Booking not found, create a new one
-                            createNewBooking(checkinDate, checkoutDate, roomId, status, userId, companions, newBookingId -> {
+                            createNewBooking(combinedCheckinDateTime, checkoutDate, roomId, status, userId, companions, newBookingId -> {
                                 // After creating the new booking, create a new bill
                                 createOrUpdateBill(
-                                        newBookingId,  // Use the generated booking ID from the callback
+                                        newBookingId,
                                         roomId,
                                         userId,
-                                        checkinDate,
+                                        combinedCheckinDateTime,
                                         checkoutDate,
-                                        price,
-                                        paymentStatus,
-                                        paymentMethod,
-                                        paymentReceiptUrl
+                                        calculatePrice(combinedCheckinDateTime, checkoutDate),
+                                        "Pending",
+                                        null,
+                                        null
                                 );
-
-
                             });
                         }
                     })
@@ -315,89 +309,136 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
         return binding.getRoot();
     }
 
-    private boolean isValidDate(String date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
-        try {
-            sdf.parse(date);
-            return true;
-        } catch (ParseException e) {
-            return false;
-        }
+    private void setDefaultDate() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        String formattedDate = String.format("%02d/%02d/%04d", month + 1, day, year);
+        binding.bookformDate.setText(formattedDate);
+    }
+
+
+    private void setupCalendarView() {
+        binding.calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            String formattedDate = String.format("%02d/%02d/%04d", month + 1, dayOfMonth, year);
+            binding.bookformDate.setText(formattedDate);
+
+            // Ensure day is set
+            if (binding.bookformday.getText().toString().isEmpty()) {
+                binding.bookformday.setText("1");
+            }
+
+            // Only trigger calculation if time is set
+            if (!binding.bookformtime.getText().toString().isEmpty()) {
+                updateDays(0);
+            }
+        });
+
+        // Initial date setup without forcing a time
+        setInitialDate();
+    }
+
+    private void setInitialDate() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        // Set default date
+        String formattedDate = String.format("%02d/%02d/%04d", month + 1, day, year);
+        binding.bookformDate.setText(formattedDate);
+
+        // Leave time blank
+        binding.bookformtime.setText("");
+
+        // Set default days
+        binding.bookformday.setText("1");
+    }
+
+
+    // Add in the class
+    private void showTimePickerDialog() {
+        TimePickerWheelDialog dialog = new TimePickerWheelDialog(getContext());
+        dialog.setOnTimeSelectedListener(time -> {
+            binding.bookformtime.setText(time);
+            // Automatically trigger calculation when time is set
+            updateDays(0);
+        });
+        dialog.show();
     }
 
 
     private void createOrUpdateBill(String bookingId, String roomId, String userId, String checkinDate,
                                     String checkoutDate, double price, String paymentStatus,
                                     String paymentMethod, String paymentReceiptUrl) {
-        // Get the current timestamp
         long timestamp = System.currentTimeMillis();
 
-        // Prepare bill data
-        Bill newBill = new Bill(
-                bookingId,                // The associated booking ID
-                roomId,                   // The associated room ID
-                userId,                   // The associated user ID
-                checkinDate,              // The check-in date
-                checkoutDate,             // The check-out date
-                price,                    // Price for the room during the stay
-                paymentStatus,            // Payment status (e.g., "Paid", "Pending", "Unpaid")
-                paymentMethod,            // Payment method (e.g., "GCash", "Counter Payment", "Credit")
-                paymentReceiptUrl,        // Payment receipt URL, if any
-                timestamp,                // Created at timestamp (in milliseconds)
-                timestamp                 // Updated at timestamp (in milliseconds)
-        );
+        Log.d("BillUpdate", "Searching for bill - BookingID: " + bookingId + ", UserID: " + userId);
 
-        // Get the Firestore collection for bills
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Check if the bill already exists for this booking
+        // Query using both booking_id and user_id
         db.collection("bills")
+                .whereEqualTo("user_id", userId)  // Add user_id to query
                 .whereEqualTo("booking_id", bookingId)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+                    Log.d("BillUpdate", "Found " + querySnapshot.size() + " matching bills");
+
                     if (!querySnapshot.isEmpty()) {
-                        // Document found, update it
-                        String billId = querySnapshot.getDocuments().get(0).getId();  // Get the document ID
+                        // Get the existing bill document
+                        String billId = querySnapshot.getDocuments().get(0).getId();
+                        Log.d("BillUpdate", "Updating bill ID: " + billId);
+
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("user_id", userId);
+                        updates.put("booking_id", bookingId);
+                        updates.put("room_id", roomId);
+                        updates.put("check_in_date", checkinDate);
+                        updates.put("check_out_date", checkoutDate);
+                        updates.put("price", price);
+                        updates.put("updated_at", timestamp);
+
                         db.collection("bills").document(billId)
-                                .update(
-                                        "check_in_date", checkinDate,
-                                        "check_out_date", checkoutDate,
-                                        "price", price,
-                                        "payment_status", paymentStatus,
-                                        "payment_method", paymentMethod,
-                                        "payment_receipt_url", paymentReceiptUrl,
-                                        "updated_at", timestamp // Update the updated_at field
-                                )
+                                .update(updates)
                                 .addOnSuccessListener(aVoid -> {
-                                    // Successfully updated bill
-
-                                })
-                                .addOnFailureListener(e -> {
-                                    // Error updating bill
-
+                                    Log.d("BillUpdate", "Bill updated successfully");
+                                    if (isAdded() && getContext() != null) {
+                                        Toast.makeText(requireContext(), "Bill updated", Toast.LENGTH_SHORT).show();
+                                    }
                                 });
                     } else {
-                        // Bill not found, create a new one
+                        // Create new bill with all required fields
+                        Map<String, Object> newBill = new HashMap<>();
+                        newBill.put("user_id", userId);
+                        newBill.put("booking_id", bookingId);
+                        newBill.put("room_id", roomId);
+                        newBill.put("check_in_date", checkinDate);
+                        newBill.put("check_out_date", checkoutDate);
+                        newBill.put("price", price);
+                        newBill.put("payment_status", paymentStatus);
+                        newBill.put("payment_method", paymentMethod);
+                        newBill.put("payment_receipt_url", paymentReceiptUrl);
+                        newBill.put("created_at", timestamp);
+                        newBill.put("updated_at", timestamp);
+
                         db.collection("bills")
                                 .add(newBill)
                                 .addOnSuccessListener(documentReference -> {
-                                    // Successfully created new bill
-
-                                })
-                                .addOnFailureListener(e -> {
-                                    // Error creating bill
-
+                                    Log.d("BillUpdate", "New bill created with ID: " + documentReference.getId());
+                                    if (isAdded() && getContext() != null) {
+                                        Toast.makeText(requireContext(), "New bill created", Toast.LENGTH_SHORT).show();
+                                    }
                                 });
                     }
-                })
-                .addOnFailureListener(e -> {
-                    // Error checking bill existence
-                    Toast.makeText(getContext(), "Error checking bill", Toast.LENGTH_SHORT).show();
                 });
     }
 
+
+
     private Map<String, Integer> roomPrices = new HashMap<>();
 
+    // Modify calculatePrice method to use combined datetime
     private double calculatePrice(String checkinDate, String checkoutDate) {
         // Fetch price from Firestore if not already cached
         String roomId = getArguments().getString("roomId");
@@ -410,6 +451,22 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
 
         // Calculate the total price based on check-in and check-out dates
         return calculateTotalPrice(checkinDate, checkoutDate, pricePerDay);
+    }
+
+    private double calculateTotalPrice(String checkinDate, String checkoutDate, double pricePerDay) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
+        try {
+            Date checkIn = dateFormat.parse(checkinDate);
+            Date checkOut = dateFormat.parse(checkoutDate);
+            if (checkIn != null && checkOut != null) {
+                long diffInMillis = checkOut.getTime() - checkIn.getTime();
+                long days = TimeUnit.MILLISECONDS.toDays(diffInMillis);
+                return days * pricePerDay;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;  // Return 0 if calculation fails
     }
 
     private void fetchRoomPrice(String roomId) {
@@ -429,23 +486,6 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
                 .addOnFailureListener(e -> {
                     Log.e("BookingForm", "Error fetching room price", e);
                 });
-    }
-
-
-    private double calculateTotalPrice(String checkinDate, String checkoutDate, double pricePerDay) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
-        try {
-            Date checkIn = dateFormat.parse(checkinDate);
-            Date checkOut = dateFormat.parse(checkoutDate);
-            if (checkIn != null && checkOut != null) {
-                long diffInMillis = checkOut.getTime() - checkIn.getTime();
-                long days = TimeUnit.MILLISECONDS.toDays(diffInMillis);
-                return days * pricePerDay;
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return 0;  // Return 0 if calculation fails
     }
 
 
@@ -478,18 +518,7 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
     public interface OnBookingCreatedListener {
         void onBookingCreated(String bookingId);
     }
-
-
-    private void openDate() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        // Use getActivity() instead of requireContext()
-        DatePickerDialog dialog = new DatePickerDialog(getActivity(), this, year, month, day);
-        dialog.show();
-    }
+    
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -516,6 +545,7 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
 
     private String calculatedCheckoutDate; // Variable to store the calculated checkout date
 
+    // Modify updateDays to handle potential empty time
     private void updateDays(int change) {
         String currentText = binding.bookformday.getText().toString();
         int currentValue = currentText.isEmpty() ? 1 : Integer.parseInt(currentText);
@@ -530,37 +560,39 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
         // Store the new value in bookformday for check-in
         binding.bookformday.setText(String.valueOf(newValue));
 
-        // Get the current check-in date from bookformDate (assuming this is where the check-in date is stored)
-        String checkInText = binding.bookformDate.getText().toString(); // Check-in date should be here
-        if (checkInText.isEmpty()) {
-            // If no check-in date is provided, we can't calculate checkout date
-            return;
-        }
+        // Combine date and time
+        String dateText = binding.bookformDate.getText().toString();
+        String timeText = binding.bookformtime.getText().toString();
 
+        // Only proceed if both date and time are available
+        if (!dateText.isEmpty() && !timeText.isEmpty()) {
+            // Combine date and time
+            String combinedDateTime = dateText + " " + timeText;
 
-        // Parse the check-in date (this assumes you already have a valid date format)
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
-        try {
-            Date checkInDate = dateFormat.parse(checkInText); // Parse the check-in date
-            if (checkInDate != null) {
-                // Calculate the checkout date based on the number of days
-                int hoursToAdd = newValue * 22; // 1 night = 22 hours
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(checkInDate);
-                calendar.add(Calendar.HOUR_OF_DAY, hoursToAdd); // Add the calculated hours to get checkout
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault());
+            try {
+                Date checkInDate = dateFormat.parse(combinedDateTime);
+                if (checkInDate != null) {
+                    // Calculate the checkout date based on the number of days
+                    int hoursToAdd = newValue * 22; // 1 night = 22 hours
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(checkInDate);
+                    calendar.add(Calendar.HOUR_OF_DAY, hoursToAdd);
 
-                // Format the new checkout date
-                calculatedCheckoutDate = formatDate(calendar); //this will be the checkout date time
-            } else {
-                // If the check-in date is invalid, handle accordingly
+                    // Format the new checkout date
+                    calculatedCheckoutDate = formatDate(calendar);
+                } else {
+                    calculatedCheckoutDate = null;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
                 calculatedCheckoutDate = null;
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
-            // Handle error in parsing the date
+        } else {
             calculatedCheckoutDate = null;
         }
     }
+
 
 
     // Format the date for display

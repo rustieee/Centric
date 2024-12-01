@@ -1,7 +1,6 @@
 package com.finals.centric;
 
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -21,6 +20,8 @@ import com.finals.centric.databinding.FragmentBookinginfoBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Arrays;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -144,9 +145,29 @@ public class bookinginfoFragment extends Fragment {
 
             switch (status) {
                 case "RESERVED":
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("booking")
+                            .whereEqualTo("roomId", roomId)
+                            .whereIn("status", Arrays.asList("RESERVED", "OCCUPIED"))
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                if (!queryDocumentSnapshots.isEmpty()) {
+                                    DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                                    String sstatus = document.getString("status");
+                                    String reservedCheckin = document.getString("check_in_date").split(" ")[0];
+                                    String reservedCheckout = document.getString("check_out_date").split(" ")[0];
+
+                                    if (reservedCheckin != null && reservedCheckout != null) {
+                                        String statusText = sstatus + " FOR\n" + reservedCheckin + " to " + reservedCheckout;
+                                        binding.roomStatus.setText(statusText);
+
+                                        // Set color based on status
+                                        int colorRes = sstatus.equals("OCCUPIED") ? R.color.blue : R.color.orange;
+                                        binding.roomStatus.setTextColor(ContextCompat.getColor(requireContext(), colorRes));
+                                    }
+                                }
+                            });
                     binding.roomStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.orange));
-                    binding.bookNowbtn.setImageResource(R.drawable.booking_info_unavail);
-                    binding.bookNowbtn.setEnabled(false);
                     binding.checkDetail1.setVisibility(View.GONE);
                     binding.checkDetail2.setVisibility(View.GONE);
                     binding.payinfobtn.setVisibility(View.GONE);
@@ -344,7 +365,7 @@ public class bookinginfoFragment extends Fragment {
 
         // Reference to the bills collection where the bookingId matches
         db.collection("bills")
-                .whereEqualTo("bookingId", bookingId)
+                .whereEqualTo("booking_id", bookingId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
