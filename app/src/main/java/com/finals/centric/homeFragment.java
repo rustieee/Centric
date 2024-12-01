@@ -13,6 +13,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -253,20 +254,25 @@ public class homeFragment extends Fragment {
     }
 
     private void fetchRoomData() {
-        db.collection("rooms").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                int index = 0;
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    RoomInfo roomInfo = document.toObject(RoomInfo.class);
-                    roomInfo.setRoomId(document.getId());  // Set the roomId to the document ID
-                    roomData[index] = roomInfo;
-                    checkRoomBookingStatus(roomInfo.getRoomId(), roomInfo, index);  // Now pass roomId correctly
-                    index++;
-                    if (index >= 4) break; // Assume you have a fixed 4 rooms to display
-                }
-            }
-        });
+        db.collection("rooms")
+                .limit(4)  // Efficiently limit to 4 rooms
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int index = 0;
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        RoomInfo roomInfo = document.toObject(RoomInfo.class);
+                        roomInfo.setRoomId(document.getId());
+                        roomData[index] = roomInfo;
+                        checkRoomBookingStatus(roomInfo.getRoomId(), roomInfo, index);
+                        index++;
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle the error - you can show a toast or update UI accordingly
+                    Log.e("FetchRoomData", "Error fetching rooms", e);
+                });
     }
+
 
 
     private void checkRoomBookingStatus(String roomId, RoomInfo roomInfo, int roomIndex) {
