@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -100,11 +101,15 @@ public class homeFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         user = auth.getCurrentUser();
-        profileChangeName = binding.profileChangeName;
-        payRoomTime = binding.payRoomTime;
-        payRoomPrice = binding.payRoomPrice;
         profileEditCardLayout = binding.profileEditCardLayout; // Initialize the CardView
         profileEditCardLayout.setVisibility(View.GONE);
+
+        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
+            if (firebaseAuth.getCurrentUser() == null) {
+                // User is not logged in, handle accordingly
+                navigateToLogin();
+            }
+        });
 
         fetchBillData();
         fetchRoomData();
@@ -121,11 +126,6 @@ public class homeFragment extends Fragment {
         binding.room3btn.setOnClickListener(v -> roomanimateButtonAndSwitchFragment(v, 2));
         binding.room4btn.setOnClickListener(v -> roomanimateButtonAndSwitchFragment(v, 3));
 
-        setButtonAnimation(binding.changebtn, () -> replaceFragment(new bookingFragment()));
-        setButtonAnimation(binding.cancelbtn, this::cancelBookingData);
-        setButtonAnimation(binding.paybtn, () -> {
-            replaceFragment(new paymentFragment());
-        });
         setButtonAnimation(binding.directionbtn, () -> {
             // Start the maps intent for direction button
             String uri = "https://maps.app.goo.gl/N463hsxswuAqyJyQ6";
@@ -136,105 +136,83 @@ public class homeFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void cancelBookingData() {
-        // Fetch the user's booking
-        db.collection("booking")
-                .whereEqualTo("user_id", user.getUid())
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        for (QueryDocumentSnapshot bookingDoc : task.getResult()) {
-                            String bookingId = bookingDoc.getId();
-                            String roomId = bookingDoc.getString("roomId");
+    private void navigateToLogin() {
+        if (getActivity() == null) {
+            return;
+        }
 
-                            // Delete the booking document
-                            db.collection("booking").document(bookingId)
-                                    .delete()
-                                    .addOnSuccessListener(aVoid -> {
-                                        // After deleting booking, delete the bill document
-                                        Toast.makeText(requireContext(), "Booking canceled", Toast.LENGTH_SHORT).show();
-                                        deleteBillData(roomId);
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        // Handle failure to delete booking
-                                        showErrorMessage("Failed to cancel booking: " + e.getMessage());
-                                    });
-                        }
-                    } else {
-                        showErrorMessage("No active bookings found.");
-                    }
-                })
-                .addOnFailureListener(e -> showErrorMessage("Error fetching booking: " + e.getMessage()));
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        getActivity().finish();
     }
-
-    private void deleteBillData(String roomId) {
-        // Fetch and delete the user's bill
-        db.collection("bills")
-                .whereEqualTo("user_id", user.getUid())
-                .whereEqualTo("room_id", roomId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        for (QueryDocumentSnapshot billDoc : task.getResult()) {
-                            String billId = billDoc.getId();
-
-                            // Delete the bill document
-                            db.collection("bills").document(billId)
-                                    .delete()
-                                    .addOnSuccessListener(aVoid -> {
-                                        // Hide the payment card layout
-                                        profileEditCardLayout.setVisibility(View.GONE);
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        // Handle failure to delete bill
-                                        showErrorMessage("Failed to delete bill: " + e.getMessage());
-                                    });
-                        }
-                    } else {
-                        showErrorMessage("No bill found to delete.");
-                    }
-                })
-                .addOnFailureListener(e -> showErrorMessage("Error fetching bill: " + e.getMessage()));
-    }
-
-    private void showErrorMessage(String message) {
-        // Display error message
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    private void showSuccessMessage(String message) {
-        // Display success message
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
 
     private void fetchBillData() {
-        db.collection("bills")
-                .whereEqualTo("user_id", user.getUid())  // Changed from userId to user_id
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        boolean hasPendingPayment = false;
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        LinearLayout bookingsContainer = binding.currentBookingsContainer;
+        bookingsContainer.removeAllViews();
 
-                        for (QueryDocumentSnapshot billDoc : task.getResult()) {
-                            String paymentStatus = billDoc.getString("payment_status");  // Changed from paymentStatus
+        if (currentUser != null) {
+            db.collection("bills")
+                    .whereEqualTo("user_id", currentUser.getUid())
+                    .whereEqualTo("payment_status", "Pending")
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            int totalBookings = task.getResult().size();
+                            int currentBooking = 0;
 
-                            if ("Pending".equals(paymentStatus)) {  // Match exact case
-                                hasPendingPayment = true;
-                                String roomId = billDoc.getString("room_id");  // Changed from roomId
-                                String checkInDate = billDoc.getString("check_in_date");  // Changed from checkinDate
-                                String checkOutDate = billDoc.getString("check_out_date");  // Changed from checkoutDate
-                                updateRoomDetails(roomId, checkInDate, checkOutDate);
-                                break;
+                            for (QueryDocumentSnapshot billDoc : task.getResult()) {
+                                currentBooking++;
+                                String roomId = billDoc.getString("room_id");
+                                String checkInDate = billDoc.getString("check_in_date");
+                                String checkOutDate = billDoc.getString("check_out_date");
+                                String price = billDoc.getString("price");
+                                addBookingView(roomId, checkInDate, checkOutDate, price, currentBooking, totalBookings);
                             }
-                        }
 
-                        profileEditCardLayout.setVisibility(hasPendingPayment ? View.VISIBLE : View.GONE);
-                    }
-                });
+
+                            profileEditCardLayout.setVisibility(totalBookings > 0 ? View.VISIBLE : View.GONE);
+                        }
+                    });
+        }
     }
 
 
+    private void addBookingView(String roomId, String checkInDate, String checkOutDate, String price, int currentBooking, int totalBookings) {
+        View bookingView = getLayoutInflater().inflate(R.layout.booking_item, binding.currentBookingsContainer, false);
+
+        TextView roomNameView = bookingView.findViewById(R.id.roomName);
+        TextView bookingTimeView = bookingView.findViewById(R.id.bookingTime);
+        TextView roomPriceView = bookingView.findViewById(R.id.roomPrice);
+        View divider = bookingView.findViewById(R.id.divider);
+
+        divider.setVisibility(currentBooking == totalBookings ? View.GONE : View.VISIBLE);
+
+        db.collection("rooms").document(roomId)
+                .get()
+                .addOnSuccessListener(roomDoc -> {
+                    String roomName = roomDoc.getString("roomName");
+                    String roomType = roomDoc.getString("roomType");
+                    roomNameView.setText(roomName + " - " + roomType);
+                    bookingTimeView.setText(String.format("%s ~ %s", checkInDate, checkOutDate));
+                    roomPriceView.setText("₱" + price + ".00");
+                });
+
+        binding.currentBookingsContainer.addView(bookingView);
+    }
+
+
+
+
+
+
+
+
+    private boolean isUserLoggedIn() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        return currentUser != null;
+    }
 
     private void updateRoomDetails(String roomId, String checkInDate, String checkOutDate) {
         db.collection("rooms").document(roomId)

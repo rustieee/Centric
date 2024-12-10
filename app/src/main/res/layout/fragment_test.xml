@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TestFragment">
+
+    <LinearLayout
+        android:id="@+id/currentBooking"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="@+id/payTotalPrice"
+        app:layout_constraintStart_toStartOf="@+id/payName"
+        app:layout_constraintTop_toBottomOf="@+id/payName">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/profileChangeName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ROOM 4"
+                android:textColor="@color/black"
+                android:textSize="17sp"
+                android:textStyle="normal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/payRoomTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10/25/2024 07:00 ~ 10/26/2024 05:00"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/profileChangeName"
+                app:layout_constraintTop_toBottomOf="@+id/profileChangeName" />
+
+            <TextView
+                android:id="@+id/payRoomPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱1,100.00"
+                android:textColor="@color/black"
+                android:textSize="17sp"
+                app:layout_constraintBottom_toBottomOf="@+id/payRoomTime"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/profileChangeName" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

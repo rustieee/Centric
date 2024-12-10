@@ -111,14 +111,26 @@ public class profileFragment extends Fragment {
 
         setButtonAnimation(binding.profileChangebase, () -> {});
         setButtonAnimation(binding.imageView25, () -> {});
+        // Update the logout button click handler
         setButtonAnimation(binding.logoutBtn, () -> {
-            // Sign out the user
+            if (getActivity() == null) {
+                return;
+            }
+
             FirebaseAuth.getInstance().signOut();
+
             Intent intent = new Intent(requireActivity(), MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            // Start the new activity first
             startActivity(intent);
+
+            // Then apply the fade animation and finish current activity
             requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             requireActivity().finish();
         });
+
+
 
         setButtonAnimation2(binding.nameBtn, () -> openProfileEditFragment("name"));
         setButtonAnimation2(binding.usernameBtn, () -> openProfileEditFragment("username"));

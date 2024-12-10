@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.finals.centric.databinding.ActivityDetailsBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -70,20 +71,73 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 FirebaseAuth auth = FirebaseAuth.getInstance();
-                if (auth.getCurrentUser() != null) {
-                    auth.getCurrentUser().delete()
-                            .addOnCompleteListener(task -> {
-                                Toast.makeText(DetailsActivity.this, "User deleted successfully.", Toast.LENGTH_SHORT).show();
-                                finish();
+                FirebaseUser currentUser = auth.getCurrentUser();
+
+                if (currentUser != null) {
+                    String userId = currentUser.getUid();
+
+                    // First delete the Firestore document
+                    db.collection("users")
+                            .document(userId)
+                            .delete()
+                            .addOnSuccessListener(aVoid -> {
+                                // Then delete the Firebase Auth user
+                                currentUser.delete()
+                                        .addOnSuccessListener(unused -> {
+                                            Intent intent = new Intent(DetailsActivity.this, CreateActivity.class);
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            startActivity(intent);
+                                            finish();
+                                        });
                             });
                 } else {
+                    Intent intent = new Intent(DetailsActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                     finish();
                 }
             }
         });
 
 
+
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserDetails();
+    }
+
+    private void loadUserDetails() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            db.collection("users")
+                    .document(currentUser.getUid())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            binding.firstname.setText(documentSnapshot.getString("first_name"));
+                            binding.lastname.setText(documentSnapshot.getString("last_name"));
+                            binding.usernameEt.setText(documentSnapshot.getString("username"));
+                            binding.etnumber.setText(documentSnapshot.getString("phone_number"));
+                            binding.etbirthdate.setText(documentSnapshot.getString("birthdate"));
+
+                            // Handle address components
+                            String fullAddress = documentSnapshot.getString("address");
+                            if (fullAddress != null) {
+                                String[] addressParts = fullAddress.split(", ");
+                                if (addressParts.length >= 3) {
+                                    binding.etastreet.setText(addressParts[0]);
+                                    binding.etcity.setText(addressParts[1]);
+                                    binding.etstate.setText(addressParts[2]);
+                                }
+                            }
+                        }
+                    });
+        }
+    }
+
 
     private boolean validateInputs() {
         String firstName = binding.firstname.getText().toString();
@@ -120,34 +174,41 @@ public class DetailsActivity extends AppCompatActivity {
                 binding.etcity.getText().toString() + ", " +
                 binding.etstate.getText().toString();
 
-        // Get current user from Firebase Auth
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // Create a map to hold the user data
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("first_name", firstName);
-        userMap.put("last_name", lastName);
-        userMap.put("username", username);
-        userMap.put("phone_number", phone);
-        userMap.put("birthdate", birthdate);
-        userMap.put("address", address);
+        // Update specific fields without overwriting the entire document
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("first_name", firstName);
+        updates.put("last_name", lastName);
+        updates.put("username", username);
+        updates.put("phone_number", phone);
+        updates.put("birthdate", birthdate);
+        updates.put("address", address);
 
-        // Get Firestore instance and store the user data
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
-                .document(userId) // Store under the user's UID
-                .set(userMap)
+                .document(userId)
+                .update(updates)
                 .addOnSuccessListener(aVoid -> {
-                    // Successfully saved user data
                     Intent intent = new Intent(DetailsActivity.this, VerificationTwoActivity.class);
                     startActivity(intent);
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    // Handle error
-                    Toast.makeText(DetailsActivity.this, "Error saving user details", Toast.LENGTH_SHORT).show();
+                    // If document doesn't exist, create it
+                    db.collection("users")
+                            .document(userId)
+                            .set(updates)
+                            .addOnSuccessListener(aVoid -> {
+                                Intent intent = new Intent(DetailsActivity.this, VerificationTwoActivity.class);
+                                startActivity(intent);
+                                finish();
+                            })
+                            .addOnFailureListener(e1 -> {
+                                Toast.makeText(DetailsActivity.this, "Error saving user details", Toast.LENGTH_SHORT).show();
+                            });
                 });
     }
+
 
     private void setButtonAnimation(View button, Runnable onClickAction) {
         button.setOnClickListener(v -> {

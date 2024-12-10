@@ -20,6 +20,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class VerificationTwoActivity extends AppCompatActivity {
 
     ActivityVerificationTwoBinding binding;
@@ -91,20 +94,15 @@ public class VerificationTwoActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (user != null && !user.isEmailVerified()) {
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    db.collection("users").document(user.getUid())
-                            .delete()
-                            .addOnCompleteListener(task -> {
-                                auth.getCurrentUser().delete();
-                                Toast.makeText(VerificationTwoActivity.this, "User details deleted.", Toast.LENGTH_SHORT).show();
-                                finish();
-                            });
-                } else {
-                    finish();
-                }
+                Intent intent = new Intent(VerificationTwoActivity.this, DetailsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
             }
         });
+
+
+
     }
 
     private void startResendTimer() {

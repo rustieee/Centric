@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -17,12 +18,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class CreateActivity extends AppCompatActivity {
 
     ActivityCreateBinding binding;
     FirebaseAuth mAuth;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     public void onStart() {
@@ -113,23 +118,45 @@ public class CreateActivity extends AppCompatActivity {
                         }
 
                         mAuth.createUserWithEmailAndPassword(email, password)
-                                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        if (task.isSuccessful()) {
-                                            // Account created successfully
-                                            Intent intent = new Intent(CreateActivity.this, DetailsActivity.class);
-                                            startActivity(intent);
-                                            finish(); // Finish the current activity to prevent the user from going back to it
-                                        } else {
-                                            // Authentication failed
-                                            Toast.makeText(CreateActivity.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
+                                .addOnCompleteListener(this, task -> {
+                                    if (task.isSuccessful()) {
+                                        FirebaseUser user = mAuth.getCurrentUser();
+                                        // Create user document in Firestore
+                                        Map<String, Object> userData = new HashMap<>();
+                                        userData.put("email", email);
+
+                                        db.collection("users")
+                                                .document(user.getUid())
+                                                .set(userData)
+                                                .addOnSuccessListener(aVoid -> {
+                                                    Intent intent = new Intent(CreateActivity.this, DetailsActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    Toast.makeText(CreateActivity.this,
+                                                            "Error creating user profile: " + e.getMessage(),
+                                                            Toast.LENGTH_SHORT).show();
+                                                });
+                                    } else {
+                                        Toast.makeText(CreateActivity.this,
+                                                "Authentication failed: " + task.getException().getMessage(),
+                                                Toast.LENGTH_SHORT).show();
                                     }
                                 });
 
                     })
                     .start();
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Intent intent = new Intent(CreateActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
         });
     }
 }

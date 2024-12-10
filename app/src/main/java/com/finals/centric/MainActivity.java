@@ -149,6 +149,26 @@ public class MainActivity extends AppCompatActivity {
                     .start();
         });
 
+        binding.forgotPass.setOnClickListener(v -> {
+            v.animate()
+                    .scaleX(0.9f)
+                    .scaleY(0.9f)
+                    .setDuration(100)
+                    .withEndAction(() -> {
+                        // Animate the scale back up after the initial scale down
+                        v.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(100)
+                                .start();
+
+                        // Start the new activity after the animation finishes
+                        Intent intent = new Intent(this, forgotPassActivity.class);
+                        startActivity(intent);
+                    })
+                    .start();
+        });
+
     }
 
     @Override

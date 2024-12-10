@@ -1,5 +1,6 @@
 package com.finals.centric;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 
@@ -10,10 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.finals.centric.databinding.FragmentProfileEditBinding;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -188,14 +192,7 @@ public class profileEditFragment extends Fragment {
                     break;
 
                 case "email":
-                    // Update Email
-                    userRef.update("email", updatedValue1)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(requireContext(), "Email updated successfully.", Toast.LENGTH_SHORT).show();
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(requireContext(), "Failed to update Email.", Toast.LENGTH_SHORT).show();
-                            });
+                    showReAuthDialog(updatedValue1);
                     break;
 
                 case "phone":
@@ -237,6 +234,65 @@ public class profileEditFragment extends Fragment {
             }
         }
     }
+
+    private void showReAuthDialog(String newEmail) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_reauth, null);
+        EditText passwordInput = dialogView.findViewById(R.id.password_input);
+
+        builder.setView(dialogView)
+                .setTitle("Re-authenticate")
+                .setMessage("Please enter your password to continue")
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    String password = passwordInput.getText().toString();
+                    if (!password.isEmpty()) {
+                        reauthenticateUser(password, newEmail);
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background_round);
+        dialog.show();
+        // Set button colors after dialog.show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.blue));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.blue));
+    }
+
+    private void reauthenticateUser(String password, String newEmail) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
+
+        user.reauthenticate(credential)
+                .addOnSuccessListener(aVoid -> {
+                    updateEmailAfterReauth(newEmail);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(requireContext(), "Invalid password. Please try again.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void updateEmailAfterReauth(String newEmail) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user.verifyBeforeUpdateEmail(newEmail)
+                .addOnSuccessListener(aVoid -> {
+                    // Update Firestore after successful auth update
+                    DocumentReference userRef = db.collection("users").document(user.getUid());
+                    userRef.update("email", newEmail)
+                            .addOnSuccessListener(unused -> {
+                                Toast.makeText(requireContext(), "Verification email sent! Please check your inbox.", Toast.LENGTH_LONG).show();
+                                replaceFragment(new profileFragment());
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(requireContext(), "Failed to update email in database.", Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(requireContext(), "Failed to update email. Please try again.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
 
     private void fetchUserData() {
         if (user != null) {
