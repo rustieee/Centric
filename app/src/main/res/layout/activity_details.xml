@@ -12,34 +12,31 @@
         android:id="@+id/imageView"
         android:layout_width="585dp"
         android:layout_height="1619dp"
-        android:layout_marginBottom="384dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="-920dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.774"
         app:srcCompat="@drawable/bg2" />
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
         android:text="Enter Details"
         android:textColor="@color/black"
         android:textSize="35sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.039" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout"
         android:layout_width="306dp"
-        android:layout_height="585dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,65 +48,61 @@
             android:id="@+id/usernameTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:text="USERNAME"
             android:textColor="@color/black"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.117"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.031" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/usernameEt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:background="@drawable/input_border"
             android:ems="10"
             android:hint="Enter username"
             android:inputType="textEmailAddress"
             android:paddingHorizontal="20dp"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/usernameTitle"
-            app:layout_constraintVertical_bias="0.010" />
+            app:layout_constraintTop_toBottomOf="@+id/usernameTitle" />
 
         <TextView
             android:id="@+id/number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:text="PHONE NUMBER"
             android:textColor="@color/black"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.139"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/usernameEt"
-            app:layout_constraintVertical_bias="0.02" />
+            app:layout_constraintTop_toBottomOf="@+id/usernameEt" />
 
         <EditText
             android:id="@+id/etnumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:background="@drawable/input_border"
             android:ems="10"
             android:hint="Enter Phone Number"
             android:inputType="number"
             android:paddingHorizontal="20dp"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/number"
-            app:layout_constraintVertical_bias="0.005" />
+            app:layout_constraintTop_toBottomOf="@+id/number" />
 
         <View
             android:id="@+id/view"
@@ -126,16 +119,15 @@
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:text="NAME"
-            android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.109"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etnumber"
-            app:layout_constraintVertical_bias="0.054" />
+            app:layout_constraintTop_toBottomOf="@+id/etnumber" />
 
         <EditText
             android:id="@+id/firstname"
@@ -147,88 +139,40 @@
             android:inputType="text"
             android:paddingHorizontal="20dp"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/name"
-            app:layout_constraintVertical_bias="0.005" />
+            app:layout_constraintTop_toBottomOf="@+id/name" />
 
         <EditText
             android:id="@+id/lastname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:background="@drawable/input_border"
             android:ems="10"
             android:hint="Last Name"
             android:inputType="text"
             android:paddingHorizontal="20dp"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/firstname"
-            app:layout_constraintVertical_bias="0.020" />
-
-        <TextView
-            android:id="@+id/birthdate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="BIRTHDATE"
-            android:textColor="@color/black"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.118"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/lastname"
-            app:layout_constraintVertical_bias="0.022" />
-
-        <EditText
-            android:id="@+id/etbirthdate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/input_border"
-            android:clickable="true"
-            android:ems="8"
-            android:focusable="false"
-            android:hint="Select date and time"
-            android:inputType="none"
-            android:paddingHorizontal="20dp"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.125"
-            app:layout_constraintStart_toStartOf="@+id/lastname"
-            app:layout_constraintTop_toBottomOf="@+id/birthdate"
-            app:layout_constraintVertical_bias="0.0" />
-
-        <ImageView
-            android:id="@+id/dateic"
-            android:layout_width="30dp"
-            android:layout_height="34dp"
-            android:layout_marginEnd="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/etbirthdate"
-            app:layout_constraintEnd_toEndOf="@+id/etbirthdate"
-            app:layout_constraintTop_toTopOf="@+id/etbirthdate"
-            app:srcCompat="@drawable/booking_form_calendaric" />
+            app:layout_constraintTop_toBottomOf="@+id/firstname" />
 
         <TextView
             android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="ADDRESS"
             android:textColor="@color/black"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.115"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etbirthdate"
-            app:layout_constraintVertical_bias="0.067" />
+            app:layout_constraintTop_toBottomOf="@+id/lastname" />
 
         <EditText
             android:id="@+id/etastreet"
@@ -251,18 +195,17 @@
             android:id="@+id/etcity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:background="@drawable/input_border"
             android:ems="10"
             android:hint="City"
             android:inputType="text"
             android:paddingHorizontal="20dp"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etastreet"
-            app:layout_constraintVertical_bias="0.10" />
+            app:layout_constraintTop_toBottomOf="@+id/etastreet" />
 
         <EditText
             android:id="@+id/etstate"
@@ -286,15 +229,14 @@
         android:id="@+id/signup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:background="@drawable/button_click"
         android:text="CONTINUE"
         android:textColor="@color/white"
         android:textSize="17sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout"
-        app:layout_constraintVertical_bias="0.166" />
+        app:layout_constraintTop_toBottomOf="@+id/layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

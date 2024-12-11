@@ -30,7 +30,7 @@ public class VerificationTwoActivity extends AppCompatActivity {
     FirebaseUser user;
 
     private CountDownTimer countDownTimer;
-    private static final int RESEND_TIME = 60000; // 60 seconds
+    private static final int RESEND_TIME = 180000; // 3 minutes (3 * 60 * 1000)
     private static final int INTERVAL_TIME = 1000; // 1 second interval
     private boolean isTimerActive = false;
 
@@ -111,12 +111,18 @@ public class VerificationTwoActivity extends AppCompatActivity {
             @Override
             public void onTick(long millisUntilFinished) {
                 long secondsRemaining = millisUntilFinished / 1000;
-                String text = "Didn't receive an email? Resend(" + secondsRemaining + ")";
+                String displayTime = String.format("%d:%02d", secondsRemaining / 60, secondsRemaining % 60);
+                String text = "Didn't receive an email? Resend(" + displayTime + ")";
                 SpannableString spannable = new SpannableString(text);
-                int startIndex = text.indexOf(String.valueOf(secondsRemaining));
-                spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(VerificationTwoActivity.this, android.R.color.holo_blue_light)), startIndex, text.length(), 0);
+                int startIndex = text.indexOf("(") + 1;
+                int endIndex = text.indexOf(")");
+                spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(VerificationTwoActivity.this, android.R.color.holo_blue_light)),
+                        startIndex,
+                        endIndex,
+                        0);
                 binding.nocode.setText(spannable);
             }
+
 
             @Override
             public void onFinish() {

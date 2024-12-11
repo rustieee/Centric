@@ -129,7 +129,7 @@ public class MainActivity2 extends AppCompatActivity {
     private void initializeFragments() {
         fragmentMapping.put(R.id.home, new homeFragment());
         fragmentMapping.put(R.id.booking, new bookingFragment());
-        fragmentMapping.put(R.id.payment, new paymentFragment());
+        fragmentMapping.put(R.id.payment, new paymentBillFragment());
         fragmentMapping.put(R.id.profile, new profileFragment());
     }
 

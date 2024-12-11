@@ -202,13 +202,6 @@ public class homeFragment extends Fragment {
         binding.currentBookingsContainer.addView(bookingView);
     }
 
-
-
-
-
-
-
-
     private boolean isUserLoggedIn() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         return currentUser != null;

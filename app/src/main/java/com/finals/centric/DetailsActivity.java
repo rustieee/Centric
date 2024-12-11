@@ -40,13 +40,6 @@ public class DetailsActivity extends AppCompatActivity {
             return insets;
         });
 
-
-        binding.etbirthdate.setOnClickListener(v -> {setButtonAnimation(binding.etbirthdate, this::openDate);});
-        binding.dateic.setOnClickListener(v -> {setButtonAnimation(binding.etbirthdate, this::openDate);});
-
-
-
-
         binding.signup.setOnClickListener(v -> {
             v.animate()
                     .scaleX(0.9f)
@@ -121,7 +114,6 @@ public class DetailsActivity extends AppCompatActivity {
                             binding.lastname.setText(documentSnapshot.getString("last_name"));
                             binding.usernameEt.setText(documentSnapshot.getString("username"));
                             binding.etnumber.setText(documentSnapshot.getString("phone_number"));
-                            binding.etbirthdate.setText(documentSnapshot.getString("birthdate"));
 
                             // Handle address components
                             String fullAddress = documentSnapshot.getString("address");
@@ -143,14 +135,10 @@ public class DetailsActivity extends AppCompatActivity {
         String firstName = binding.firstname.getText().toString();
         String lastName = binding.lastname.getText().toString();
         String phone = binding.etnumber.getText().toString();
-        String birthdate = binding.etbirthdate.getText().toString();
         String username = binding.usernameEt.getText().toString();
-        String address = binding.etastreet.getText().toString() + ", " +
-                binding.etcity.getText().toString() + ", " +
-                binding.etstate.getText().toString();
 
         // Validate that none of the required fields are empty
-        if (firstName.isEmpty() || lastName.isEmpty() || phone.isEmpty() || birthdate.isEmpty() || username.isEmpty()) {
+        if (firstName.isEmpty() || lastName.isEmpty() || phone.isEmpty() || username.isEmpty()) {
             Toast.makeText(this, "Please fill in all the fields", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -169,7 +157,6 @@ public class DetailsActivity extends AppCompatActivity {
         String lastName = binding.lastname.getText().toString();
         String username = binding.usernameEt.getText().toString();
         String phone = binding.etnumber.getText().toString();
-        String birthdate = binding.etbirthdate.getText().toString();
         String address = binding.etastreet.getText().toString() + ", " +
                 binding.etcity.getText().toString() + ", " +
                 binding.etstate.getText().toString();
@@ -182,7 +169,6 @@ public class DetailsActivity extends AppCompatActivity {
         updates.put("last_name", lastName);
         updates.put("username", username);
         updates.put("phone_number", phone);
-        updates.put("birthdate", birthdate);
         updates.put("address", address);
 
         db.collection("users")
@@ -207,34 +193,5 @@ public class DetailsActivity extends AppCompatActivity {
                                 Toast.makeText(DetailsActivity.this, "Error saving user details", Toast.LENGTH_SHORT).show();
                             });
                 });
-    }
-
-
-    private void setButtonAnimation(View button, Runnable onClickAction) {
-        button.setOnClickListener(v -> {
-            v.animate()
-                    .scaleX(0.9f)
-                    .scaleY(0.9f)
-                    .setDuration(100)
-                    .withEndAction(() -> {
-                        v.animate()
-                                .scaleX(1f)
-                                .scaleY(1f)
-                                .setDuration(100)
-                                .withEndAction(onClickAction) // Execute the passed action after scaling back
-                                .start();
-                    })
-                    .start();
-        });
-    }
-
-    private void openDate() {
-        DatePickerDialog dialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                binding.etbirthdate.setText((month+1) + "/" + day + "/" + year);
-            }
-        }, 2000, 0, 1);
-        dialog.show();
     }
 }

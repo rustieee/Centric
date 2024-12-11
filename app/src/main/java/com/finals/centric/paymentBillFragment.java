@@ -3,17 +3,24 @@ package com.finals.centric;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.finals.centric.databinding.FragmentPaymentBillBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,6 +37,7 @@ public class paymentBillFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private FirebaseUser user;
 
     public paymentBillFragment() {
         // Required empty public constructor
@@ -63,11 +71,24 @@ public class paymentBillFragment extends Fragment {
     }
 
     FragmentPaymentBillBinding binding;
+    FirebaseAuth auth;
+    FirebaseFirestore db;
+    TextView profileChangeName;
+    TextView payRoomTime;
+    TextView payRoomPrice;
+    CardView profileEditCardLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentPaymentBillBinding.inflate(getLayoutInflater(), container, false);
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        user = auth.getCurrentUser();
+        profileEditCardLayout = binding.profileEditCardLayout; // Initialize the CardView
+        profileEditCardLayout.setVisibility(View.GONE);
+        fetchUserName();
+        fetchBillData();
 
         // Load GIF using Glide and handle GIF loop directly
         Glide.with(this)
@@ -91,6 +112,77 @@ public class paymentBillFragment extends Fragment {
         setButtonAnimation(binding.payGcashBtn, () -> replaceFragment(new paymentGcashFragment()));
 
         return binding.getRoot();
+    }
+
+    private void fetchUserName() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            db.collection("users").document(currentUser.getUid())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        String firstName = documentSnapshot.getString("first_name");
+                        String lastName = documentSnapshot.getString("last_name");
+                        String fullName = firstName + " " + lastName;
+                        binding.payName.setText(fullName);
+                    });
+        }
+    }
+
+    private void fetchBillData() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        LinearLayout bookingsContainer = binding.currentBookingsContainer;
+        bookingsContainer.removeAllViews();
+
+        if (currentUser != null) {
+            db.collection("bills")
+                    .whereEqualTo("user_id", currentUser.getUid())
+                    .whereEqualTo("payment_status", "Pending")
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            int totalBookings = task.getResult().size();
+                            int currentBooking = 0;
+                            int totalPrice = 0; // Add this variable
+
+                            for (QueryDocumentSnapshot billDoc : task.getResult()) {
+                                currentBooking++;
+                                String roomId = billDoc.getString("room_id");
+                                String checkInDate = billDoc.getString("check_in_date");
+                                String checkOutDate = billDoc.getString("check_out_date");
+                                String price = billDoc.getString("price");
+                                totalPrice += Integer.parseInt(price);
+                                addBookingView(roomId, checkInDate, checkOutDate, price, currentBooking, totalBookings);
+                            }
+
+                            binding.payTotalPrice.setText("₱" + totalPrice + ".00");
+                            profileEditCardLayout.setVisibility(totalBookings > 0 ? View.VISIBLE : View.GONE);
+                        }
+                    });
+        }
+    }
+
+
+    private void addBookingView(String roomId, String checkInDate, String checkOutDate, String price, int currentBooking, int totalBookings) {
+        View bookingView = getLayoutInflater().inflate(R.layout.booking_item, binding.currentBookingsContainer, false);
+
+        TextView roomNameView = bookingView.findViewById(R.id.roomName);
+        TextView bookingTimeView = bookingView.findViewById(R.id.bookingTime);
+        TextView roomPriceView = bookingView.findViewById(R.id.roomPrice);
+        View divider = bookingView.findViewById(R.id.divider);
+
+        divider.setVisibility(View.GONE);
+
+        db.collection("rooms").document(roomId)
+                .get()
+                .addOnSuccessListener(roomDoc -> {
+                    String roomName = roomDoc.getString("roomName");
+                    String roomType = roomDoc.getString("roomType");
+                    roomNameView.setText(roomName + " - " + roomType);
+                    bookingTimeView.setText(String.format("%s ~ %s", checkInDate, checkOutDate));
+                    roomPriceView.setText("₱" + price + ".00");
+                });
+
+        binding.currentBookingsContainer.addView(bookingView);
     }
 
     private void setButtonAnimation(View button, Runnable onClickAction) {

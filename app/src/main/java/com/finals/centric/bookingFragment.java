@@ -1,9 +1,10 @@
 package com.finals.centric;
 
-import static com.finals.centric.RoomInfo.roomImagesAvailableReserved;
-import static com.finals.centric.RoomInfo.roomImagesOccupiedYou;
-import static com.finals.centric.RoomInfo.roomImagesReservedYou;
+import static com.finals.centric.RoomInfo.bookroomImagesAvailableReserved;
+import static com.finals.centric.RoomInfo.bookroomImagesOccupiedYou;
+import static com.finals.centric.RoomInfo.bookroomImagesReservedYou;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -24,7 +25,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -132,14 +136,24 @@ public class bookingFragment extends Fragment {
                         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
                         Date currentDate = new Date();
 
+                        // Create a list to store and sort booking dates
+                        List<BookingDate> bookingDatesList = new ArrayList<>();
+
                         for (QueryDocumentSnapshot bookingDoc : task.getResult()) {
                             String status = bookingDoc.getString("status");
                             String userId = bookingDoc.getString("user_id");
                             String bookingCheckIn = bookingDoc.getString("check_in_date");
                             String bookingCheckOut = bookingDoc.getString("check_out_date");
 
+                            // Add to booking dates list
+                            // Only add to booking dates list if status is RESERVED or OCCUPIED
+                            if (bookingCheckIn != null && bookingCheckOut != null &&
+                                    ("RESERVED".equals(status) || "OCCUPIED".equals(status))) {
+                                boolean isUserBooking = user.getUid().equals(bookingDoc.getString("user_id"));
+                                bookingDatesList.add(new BookingDate(bookingCheckIn, bookingCheckOut, isUserBooking));
+                            }
+
                             if (user.getUid().equals(userId)) {
-                                // Current user's bookings show regardless of date
                                 if ("RESERVED".equals(status)) {
                                     isReservedByCurrentUser = true;
                                     checkinDate = bookingCheckIn;
@@ -150,7 +164,6 @@ public class bookingFragment extends Fragment {
                                     checkoutDate = bookingCheckOut;
                                 }
                             } else {
-                                // Other users' bookings only show when within date range
                                 try {
                                     Date checkIn = sdf.parse(bookingCheckIn);
                                     Date checkOut = sdf.parse(bookingCheckOut);
@@ -160,6 +173,72 @@ public class bookingFragment extends Fragment {
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
+                            }
+                        }
+
+                        // Sort booking dates
+                        Collections.sort(bookingDatesList, (a, b) -> {
+                            try {
+                                Date date1 = sdf.parse(a.checkIn);
+                                Date date2 = sdf.parse(b.checkIn);
+                                return date1.compareTo(date2);
+                            } catch (ParseException e) {
+                                return 0;
+                            }
+                        });
+
+                        // Build sorted dates string
+                        StringBuilder bookingDates = new StringBuilder();
+                        int displayLimit = 3;
+                        int totalDates = bookingDatesList.size();
+
+                        for (int i = 0; i < Math.min(displayLimit, totalDates); i++) {
+                            BookingDate date = bookingDatesList.get(i);
+                            if (i > 0) {
+                                bookingDates.append("\n");
+                            }
+                            bookingDates.append(date.checkIn)
+                                    .append(" ~ ")
+                                    .append(date.checkOut)
+                                    .append(date.isUserBooking ? " (Your booking)" : "");
+                        }
+
+                        // Add ellipsis if there are more dates
+                        if (totalDates > displayLimit) {
+                            bookingDates.append("\n...");
+                        }
+
+                        // Get the relevant views based on room index
+                        TextView currentBookTitle = null;
+                        TextView currentBooks = null;
+                        switch (roomIndex) {
+                            case 0:
+                                currentBookTitle = binding.currentBookTitle;
+                                currentBooks = binding.currentBooks;
+                                break;
+                            case 1:
+                                currentBookTitle = binding.currentBookTitle2;
+                                currentBooks = binding.currentBooks2;
+                                break;
+                            case 2:
+                                currentBookTitle = binding.currentBookTitle3;
+                                currentBooks = binding.currentBooks3;
+                                break;
+                            case 3:
+                                currentBookTitle = binding.currentBookTitle4;
+                                currentBooks = binding.currentBooks4;
+                                break;
+                        }
+
+                        // Update booking dates visibility and text
+                        if (currentBookTitle != null && currentBooks != null) {
+                            if (!bookingDatesList.isEmpty()) {
+                                currentBookTitle.setVisibility(View.VISIBLE);
+                                currentBooks.setVisibility(View.VISIBLE);
+                                currentBooks.setText(bookingDates.toString());
+                            } else {
+                                currentBookTitle.setVisibility(View.GONE);
+                                currentBooks.setVisibility(View.GONE);
                             }
                         }
 
@@ -180,6 +259,20 @@ public class bookingFragment extends Fragment {
                     }
                 });
     }
+
+    // Add this helper class at the end of your bookingFragment class
+    private static class BookingDate {
+        String checkIn;
+        String checkOut;
+        boolean isUserBooking;
+
+        BookingDate(String checkIn, String checkOut, boolean isUserBooking) {
+            this.checkIn = checkIn;
+            this.checkOut = checkOut;
+            this.isUserBooking = isUserBooking;
+        }
+    }
+
 
     private void roomanimateButtonAndSwitchFragment(View v, int roomIndex) {
         v.animate().translationX(10f).setDuration(100).withEndAction(() -> {
@@ -267,38 +360,82 @@ public class bookingFragment extends Fragment {
 
         switch (statusText) {
             case "AVAILABLE":
-                roomImage = roomImagesAvailableReserved[roomIndex];
+                roomImage = bookroomImagesAvailableReserved[roomIndex];
                 textColor = ContextCompat.getColor(requireContext(), R.color.green);
                 bookCheckDate.setVisibility(View.GONE);
                 bookCheckBg.setVisibility(View.GONE);
                 break;
             case "RESERVED":
-                roomImage = roomImagesAvailableReserved[roomIndex];
+                roomImage = bookroomImagesAvailableReserved[roomIndex];
                 textColor = ContextCompat.getColor(requireContext(), R.color.orange);
                 bookCheckDate.setVisibility(View.GONE);
                 bookCheckBg.setVisibility(View.GONE);
                 break;
             case "MAINTENANCE":
-                roomImage = roomImagesAvailableReserved[roomIndex];
+                roomImage = bookroomImagesAvailableReserved[roomIndex];
                 textColor = ContextCompat.getColor(requireContext(), R.color.orange);
                 bookCheckDate.setVisibility(View.GONE);
                 bookCheckBg.setVisibility(View.GONE);
                 break;
             case "YOU MADE A RESERVATION TO THIS ROOM":
-                roomImage = roomImagesReservedYou[roomIndex];
+                roomImage = bookroomImagesReservedYou[roomIndex];
                 textColor = ContextCompat.getColor(requireContext(), R.color.white);
                 statusText = "YOU MADE A RESERVATION\nTO THIS ROOM";
                 bookCheckDate.setText(roomInfo.getCheckin());
                 bookCheckBg.setVisibility(View.VISIBLE);
                 bookCheckBg.setBackgroundResource(R.drawable.home_book2_checkin); // Set the appropriate background image
+                switch (roomIndex) {
+                    case 0:
+                        binding.bookroom1btn.setCardBackgroundColor(Color.parseColor("#d49e34"));
+                        binding.currentBookTitle.setTextColor(Color.parseColor("white"));
+                        binding.currentBooks.setTextColor(Color.parseColor("white"));
+                        break;
+                    case 1:
+                        binding.bookroom2btn.setCardBackgroundColor(Color.parseColor("#d49e34"));
+                        binding.currentBookTitle2.setTextColor(Color.parseColor("white"));
+                        binding.currentBooks2.setTextColor(Color.parseColor("white"));
+                        break;
+                    case 2:
+                        binding.bookroom3btn.setCardBackgroundColor(Color.parseColor("#d49e34"));
+                        binding.currentBookTitle3.setTextColor(Color.parseColor("white"));
+                        binding.currentBooks3.setTextColor(Color.parseColor("white"));
+                        break;
+                    case 3:
+                        binding.bookroom4btn.setCardBackgroundColor(Color.parseColor("#d49e34"));
+                        binding.currentBookTitle4.setTextColor(Color.parseColor("white"));
+                        binding.currentBooks4.setTextColor(Color.parseColor("white"));
+                        break;
+                }
                 break;
             case "YOU ARE OCCUPYING THIS ROOM":
-                roomImage = roomImagesOccupiedYou[roomIndex];
+                roomImage = bookroomImagesOccupiedYou[roomIndex];
                 textColor = ContextCompat.getColor(requireContext(), R.color.white);
                 statusText = "YOU ARE OCCUPYING\nTHIS ROOM";
                 bookCheckDate.setText(roomInfo.getCheckout());
                 bookCheckBg.setVisibility(View.VISIBLE);
                 bookCheckBg.setBackgroundResource(R.drawable.home_book3_checkout); // Set the appropriate background image
+                switch (roomIndex) {
+                    case 0:
+                        binding.bookroom1btn.setCardBackgroundColor(Color.parseColor("#1f8bcc"));
+                        binding.currentBookTitle.setTextColor(Color.parseColor("white"));
+                        binding.currentBooks.setTextColor(Color.parseColor("white"));
+                        break;
+                    case 1:
+                        binding.bookroom2btn.setCardBackgroundColor(Color.parseColor("#1f8bcc"));
+                        binding.currentBookTitle2.setTextColor(Color.parseColor("white"));
+                        binding.currentBooks2.setTextColor(Color.parseColor("white"));
+                        break;
+                    case 2:
+                        binding.bookroom3btn.setCardBackgroundColor(Color.parseColor("#1f8bcc"));
+                        binding.currentBookTitle3.setTextColor(Color.parseColor("white"));
+                        binding.currentBooks3.setTextColor(Color.parseColor("white"));
+                        break;
+                    case 3:
+                        binding.bookroom4btn.setCardBackgroundColor(Color.parseColor("#1f8bcc"));
+                        binding.currentBookTitle4.setTextColor(Color.parseColor("white"));
+                        binding.currentBooks4.setTextColor(Color.parseColor("white"));
+                        break;
+                }
                 break;
         }
 
@@ -316,7 +453,7 @@ public class bookingFragment extends Fragment {
                 binding.bookroom1.setTextColor(roomTextColor);
                 binding.bookprice1.setTextColor(priceTextColor);
                 binding.rS1.setBackgroundColor(textColor);
-                binding.bookroom1btn.setBackgroundResource(roomImage);
+                binding.bookroom1bg.setImageResource(roomImage);
                 binding.bookstatus1.setTextColor(textColor);
                 binding.bookstatus1.setText(statusText);
                 break;
@@ -324,7 +461,7 @@ public class bookingFragment extends Fragment {
                 binding.bookroom2.setTextColor(roomTextColor);
                 binding.bookprice2.setTextColor(priceTextColor);
                 binding.rS2.setBackgroundColor(textColor);
-                binding.bookroom2btn.setBackgroundResource(roomImage);
+                binding.bookroom2bg.setImageResource(roomImage);
                 binding.bookstatus2.setTextColor(textColor);
                 binding.bookstatus2.setText(statusText);
                 break;
@@ -332,7 +469,7 @@ public class bookingFragment extends Fragment {
                 binding.bookroom3.setTextColor(roomTextColor);
                 binding.bookprice3.setTextColor(priceTextColor);
                 binding.rS3.setBackgroundColor(textColor);
-                binding.bookroom3btn.setBackgroundResource(roomImage);
+                binding.bookroom3bg.setImageResource(roomImage);
                 binding.bookstatus3.setTextColor(textColor);
                 binding.bookstatus3.setText(statusText);
                 break;
@@ -340,7 +477,7 @@ public class bookingFragment extends Fragment {
                 binding.bookroom4.setTextColor(roomTextColor);
                 binding.bookprice4.setTextColor(priceTextColor);
                 binding.rS4.setBackgroundColor(textColor);
-                binding.bookroom4btn.setBackgroundResource(roomImage);
+                binding.bookroom4bg.setImageResource(roomImage);
                 binding.bookstatus4.setTextColor(textColor);
                 binding.bookstatus4.setText(statusText);
                 break;

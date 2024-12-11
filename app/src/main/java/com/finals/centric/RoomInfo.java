@@ -73,4 +73,25 @@ public class RoomInfo {
             R.drawable.home_room3_occupied_you,
             R.drawable.home_room4_occupied_you
     };
+
+    public static final int[] bookroomImagesAvailableReserved = {
+            R.drawable.booking_room,
+            R.drawable.booking_room,
+            R.drawable.booking_room,
+            R.drawable.booking_room
+    };
+
+    public static final int[] bookroomImagesReservedYou = {
+            R.drawable.booking_room_res,
+            R.drawable.booking_room_res,
+            R.drawable.booking_room_res,
+            R.drawable.booking_room_res
+    };
+
+    public static final int[] bookroomImagesOccupiedYou = {
+            R.drawable.booking_room_occ,
+            R.drawable.booking_room_occ,
+            R.drawable.booking_room_occ,
+            R.drawable.booking_room_occ
+    };
 }

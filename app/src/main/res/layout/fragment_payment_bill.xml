@@ -17,178 +17,203 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/profileEditCardLayout"
-        android:layout_width="350dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="80dp"
-        app:cardBackgroundColor="@color/lgray"
-        app:cardCornerRadius="16dp"
+    <ScrollView
+        android:id="@+id/scrollView4"
+        android:layout_width="428dp"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible">
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="15dp">
-
-            <View
-                android:id="@+id/s"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_marginTop="10dp"
-                android:background="@color/ldgray"
-                app:layout_constraintEnd_toEndOf="@+id/payTotalPrice"
-                app:layout_constraintHorizontal_bias="0.695"
-                app:layout_constraintStart_toStartOf="@+id/payTotal"
-                app:layout_constraintTop_toBottomOf="@+id/currentBooking" />
-
-            <View
-                android:id="@+id/profileEditCardBg"
-                android:layout_width="372dp"
-                android:layout_height="49dp"
-                android:layout_marginTop="-5dp"
-                android:background="@color/ddgray"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
+            android:layout_height="wrap_content">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constraintLayout2"
-                android:layout_width="330dp"
-                android:layout_height="45dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:id="@+id/disclaimerFrame"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toEndOf="@+id/profileEditCardLayout"
+                app:layout_constraintStart_toStartOf="@+id/profileEditCardLayout"
+                app:layout_constraintTop_toBottomOf="@+id/profileEditCardLayout">
 
                 <TextView
-                    android:id="@+id/profileEditTitle"
+                    android:id="@+id/disclaimer1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="BILL"
-                    android:textColor="@color/white"
-                    android:textSize="22sp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Payment Disclaimer"
+                    android:textColor="@color/black"
                     android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.47" />
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView10"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="Guests are welcome to settle their payment at any time during their stay. Payments can be made conveniently through GCash for a contactless option or in person at the front desk. Please ensure that the payment is completed before check-out to avoid any delays or inconveniences. Both payment methods are secure, and a receipt will be provided upon confirmation of the transaction."
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="@+id/disclaimer1"
+                    app:layout_constraintTop_toBottomOf="@+id/disclaimer1" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/payName"
+            <View
+                android:id="@+id/view5"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="20dp"
-                android:text="Russel Anthony Ortanez"
-                android:textColor="@color/black"
-                android:textSize="17sp"
-                android:textStyle="bold"
+                android:layout_height="30dp"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profileEditCardBg" />
+                app:layout_constraintTop_toBottomOf="@+id/disclaimerFrame" />
 
-            <LinearLayout
-                android:id="@+id/currentBooking"
-                android:layout_width="0dp"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/profileEditCardLayout"
+                android:layout_width="350dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="@+id/payTotalPrice"
-                app:layout_constraintStart_toStartOf="@+id/payName"
-                app:layout_constraintTop_toBottomOf="@+id/payName">
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="400dp"
+                android:layout_marginEnd="30dp"
+                app:cardBackgroundColor="@color/lgray"
+                app:cardCornerRadius="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:paddingBottom="15dp">
+
+                    <View
+                        android:id="@+id/profileEditCardBg"
+                        android:layout_width="372dp"
+                        android:layout_height="49dp"
+                        android:layout_marginTop="-5dp"
+                        android:background="@color/ddgray"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/constraintLayout2"
+                        android:layout_width="330dp"
+                        android:layout_height="45dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/profileEditTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="BILL"
+                            android:textColor="@color/white"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.47" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <TextView
-                        android:id="@+id/profileChangeName"
+                        android:id="@+id/payName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ROOM 4"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginTop="20dp"
+                        android:text="Russel Anthony Ortanez"
                         android:textColor="@color/black"
                         android:textSize="17sp"
-                        android:textStyle="normal"
+                        android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toBottomOf="@+id/profileEditCardBg" />
+
+                    <LinearLayout
+                        android:id="@+id/currentBookingsContainer"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/payName"></LinearLayout>
+
+                    <View
+                        android:id="@+id/s"
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@color/ldgray"
+                        app:layout_constraintEnd_toEndOf="@+id/payTotalPrice"
+                        app:layout_constraintHorizontal_bias="0.695"
+                        app:layout_constraintStart_toStartOf="@+id/payTotal"
+                        app:layout_constraintTop_toBottomOf="@+id/currentBookingsContainer" />
 
                     <TextView
-                        android:id="@+id/payRoomTime"
+                        android:id="@+id/payTotal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="10/25/2024 07:00 ~ 10/26/2024 05:00"
+                        android:layout_marginTop="10dp"
+                        android:text="TOTAL"
                         android:textColor="@color/black"
-                        android:textSize="12sp"
-                        app:layout_constraintStart_toStartOf="@+id/profileChangeName"
-                        app:layout_constraintTop_toBottomOf="@+id/profileChangeName" />
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="@+id/payName"
+                        app:layout_constraintTop_toBottomOf="@+id/s" />
 
                     <TextView
-                        android:id="@+id/payRoomPrice"
+                        android:id="@+id/payTotalPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
                         android:text="₱1,100.00"
                         android:textColor="@color/black"
-                        android:textSize="17sp"
-                        app:layout_constraintBottom_toBottomOf="@+id/payRoomTime"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@+id/payTotal"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/profileChangeName" />
+                        app:layout_constraintTop_toTopOf="@+id/payTotal" />
+
+                    <ImageView
+                        android:id="@+id/payCounterBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginEnd="10dp"
+                        android:src="@drawable/payment_bill_paylater"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/payTotalPrice" />
+
+                    <ImageView
+                        android:id="@+id/payGcashBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:src="@drawable/payment_bill_paygcash"
+                        app:layout_constraintBottom_toBottomOf="@+id/payCounterBtn"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/payCounterBtn" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
-            </LinearLayout>
 
-            <TextView
-                android:id="@+id/payTotal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="TOTAL"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="@+id/payName"
-                app:layout_constraintTop_toBottomOf="@+id/s" />
-
-            <TextView
-                android:id="@+id/payTotalPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:text="₱1,100.00"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@+id/payTotal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/payTotal" />
-
-            <ImageView
-                android:id="@+id/payCounterBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/payment_bill_paylater"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/payTotalPrice" />
-
-            <ImageView
-                android:id="@+id/payGcashBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:src="@drawable/payment_bill_paygcash"
-                app:layout_constraintBottom_toBottomOf="@+id/payCounterBtn"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/payCounterBtn" />
+            </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
