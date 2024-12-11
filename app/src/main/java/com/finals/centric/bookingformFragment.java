@@ -1,13 +1,24 @@
 package com.finals.centric;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +35,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -91,6 +108,13 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
     private ImageView bookformCompDel; // Reference to the delete button
     FirebaseAuth auth;
     FirebaseFirestore db;
+    private ActivityResultLauncher<Intent> cameraLauncher;
+    private ActivityResultLauncher<Intent> galleryLauncher;
+    private Uri imageUri;
+    private StorageReference storageRef;
+    private String selectedFileName;
+
+
 
     private int companionCount = 1; // Keep track of the number of companions
     private static final int MAX_COMPANIONS = 3; // Maximum number of companions allowed
@@ -102,6 +126,59 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         user = auth.getCurrentUser();
+        this.container = binding.container;
+        storageRef = FirebaseStorage.getInstance().getReference("id_uploads");
+
+
+        // Modify the camera result handling
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        binding.profileIDPic.setImageURI(imageUri);
+                        binding.profileEditCardBg.setVisibility(View.GONE);
+                        selectedFileName = "Camera_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+                                .format(new Date()) + ".jpg";
+                        binding.imageFileName.setText(selectedFileName);
+                    }
+                }
+        );
+
+// Modify the gallery result handling
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        imageUri = result.getData().getData();
+                        try {
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(
+                                    requireActivity().getContentResolver(),
+                                    imageUri
+                            );
+                            binding.profileIDPic.setImageBitmap(bitmap);
+                            binding.profileEditCardBg.setVisibility(View.GONE);
+
+                            // Get and set the actual file name from gallery
+                            String[] projection = {MediaStore.Images.Media.DISPLAY_NAME};
+                            Cursor cursor = requireActivity().getContentResolver().query(
+                                    imageUri, projection, null, null, null);
+
+                            if (cursor != null && cursor.moveToFirst()) {
+                                int nameIndex = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+                                selectedFileName = cursor.getString(nameIndex);
+                                binding.imageFileName.setText(selectedFileName);
+                                cursor.close();
+                            } else {
+                                selectedFileName = "Gallery_" + new SimpleDateFormat("yyyyMMdd_HHmmss",
+                                        Locale.getDefault()).format(new Date()) + ".jpg";
+                                binding.imageFileName.setText(selectedFileName);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        );
 
         if (getArguments() != null) {
             String status = getArguments().getString(ARG_PARAM1);
@@ -128,6 +205,7 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
                     binding.bookformcompBtnIc.setVisibility(View.GONE);
                     binding.idpicFrame.setVisibility(View.GONE);
                     binding.bookIDnote.setVisibility(View.GONE);
+                    binding.imageFileName.setVisibility(View.GONE);
                     binding.bookformcheck2.setText(checkin);
                     break;
                 case "YOU ARE OCCUPYING THIS ROOM":
@@ -175,10 +253,20 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
         binding.bookformDate.post(() -> {
             updateDays(0);
         });
-        binding.bookformtime.setOnClickListener(v -> showTimePickerDialog());
-        binding.bookformtimeopen.setOnClickListener(v -> showTimePickerDialog());
+        binding.bookformtime.setOnClickListener(v -> animateButton(v, this::showTimePickerDialog));
+        binding.bookformtimeopen.setOnClickListener(v -> animateButton(v, this::showTimePickerDialog));
         binding.bookformdaysub.setOnClickListener(v -> animateButton(v, () -> updateDays(-1)));
         binding.bookformdayadd.setOnClickListener(v -> animateButton(v, () -> updateDays(1)));
+
+        // In onCreateView(), add these click listeners:
+        binding.bookformcompBtn.setOnClickListener(v -> {
+            animateButton(v, this::showImageSourceDialog);
+        });
+
+        binding.imageFileName.setOnClickListener(v -> {
+            animateButton(v, this::showImageSourceDialog);
+        });
+
 
         // Set click listener for adding companion names
         bookformCompAdd.setOnClickListener(v -> animateButton(v, this::addCompanionNameInput));
@@ -186,10 +274,6 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
 
         // Set click listener for confirming the bookingFragment
         binding.bookformConfirm.setOnClickListener(v -> animateButton(v, () -> {
-            if (binding.bookMsg.getVisibility() == View.VISIBLE) {
-                Toast.makeText(getContext(), "This date is already booked", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
             // Add overlap validation
             int selectedDays = Integer.parseInt(binding.bookformday.getText().toString());
@@ -226,16 +310,37 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
                 return; // Exit if check-in date is not provided
             }
 
+            // Finally check ID photo if visible
+            if (binding.idpicFrame.getVisibility() == View.VISIBLE && imageUri == null) {
+                Toast.makeText(getContext(), "Please upload an ID photo", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            // Collect companion names from the dynamic fields
+            if (binding.bookMsg.getVisibility() == View.VISIBLE) {
+                Toast.makeText(getContext(), "This date is already booked", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+            // When collecting companion names:
             List<String> companions = new ArrayList<>();
-            for (int i = 0; i < container.getChildCount(); i++) {
-                View childView = container.getChildAt(i);
+
+            // Add the main companion name
+            String mainCompanionName = binding.bookformCompName.getText().toString().trim();
+            if (!mainCompanionName.isEmpty()) {
+                companions.add(mainCompanionName);
+                Log.d("CompanionsDebug", "Added main companion: " + mainCompanionName);
+            }
+
+            // Get the correct container reference and add dynamic companions
+            LinearLayout dynamicContainer = binding.container;
+            for (int i = 0; i < dynamicContainer.getChildCount(); i++) {
+                View childView = dynamicContainer.getChildAt(i);
                 if (childView instanceof EditText) {
-                    EditText companionNameField = (EditText) childView;
-                    String companionName = companionNameField.getText().toString().trim();
+                    String companionName = ((EditText) childView).getText().toString().trim();
                     if (!companionName.isEmpty()) {
                         companions.add(companionName);
+                        Log.d("CompanionsDebug", "Added dynamic companion: " + companionName);
                     }
                 }
             }
@@ -329,6 +434,111 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
 
         return binding.getRoot();
     }
+
+    private void uploadImage(String bookingId) {
+        if (imageUri != null) {
+            String fileName = "id_" + bookingId + "_" + System.currentTimeMillis();
+            StorageReference fileReference = storageRef.child(fileName);
+
+            fileReference.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        fileReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String imageUrl = uri.toString();
+                            db.collection("booking").document(bookingId)
+                                    .update("id_image_url", imageUrl)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("BookingForm", "ID uploaded successfully: " + imageUrl);
+                                    });
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("BookingForm", "Upload failed: " + e.getMessage());
+                    });
+        }
+    }
+
+
+    // Add this method to show the image source dialog
+    private void showImageSourceDialog() {
+        String[] options = {"Take Photo", "Choose from Gallery"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Upload ID Photo");
+        builder.setItems(options, (dialog, which) -> {
+            if (which == 0) {
+                openCamera();
+            } else {
+                openGallery();
+            }
+        });
+        builder.show();
+    }
+
+    // Add these helper methods
+    private void openCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File photoFile = createImageFile();
+        if (photoFile != null) {
+            imageUri = FileProvider.getUriForFile(requireContext(),
+                    "com.finals.centric.fileprovider",
+                    photoFile);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            cameraLauncher.launch(cameraIntent);
+        }
+    }
+
+    private File createImageFile() {
+        try {
+            File storageDir = requireContext().getCacheDir();
+            File image = File.createTempFile(
+                    "JPEG_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()),
+                    ".jpg",
+                    storageDir
+            );
+            return image;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void openGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryLauncher.launch(galleryIntent);
+    }
+
+    private Uri getImageUri(Context context, Bitmap originalBitmap) {
+        // Target resolution that's clear enough for ID verification but not excessive
+        int targetWidth = 1920;
+        int targetHeight = 1440;
+
+        // Scale the bitmap to target resolution while maintaining aspect ratio
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                originalBitmap,
+                targetWidth,
+                targetHeight,
+                true
+        );
+
+        try {
+            File cachePath = new File(context.getCacheDir(), "temp_images");
+            if (!cachePath.exists()) {
+                cachePath.mkdirs();
+            }
+
+            File imageFile = new File(cachePath, "temp_" + System.currentTimeMillis() + ".jpg");
+            FileOutputStream stream = new FileOutputStream(imageFile);
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream);
+            stream.close();
+
+            return Uri.fromFile(imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
 
     private void setDefaultDate() {
         Calendar calendar = Calendar.getInstance();
@@ -615,27 +825,24 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
     // Method to create a new booking with companions
     private void createNewBooking(String checkinDate, String checkoutDate, String roomId, String status,
                                   String userId, List<String> companions, OnBookingCreatedListener listener) {
-        // Prepare the booking data
         Map<String, Object> bookingData = new HashMap<>();
         bookingData.put("check_in_date", checkinDate);
         bookingData.put("check_out_date", checkoutDate);
         bookingData.put("roomId", roomId);
         bookingData.put("status", status);
         bookingData.put("user_id", userId);
-        bookingData.put("companions", companions);
+        bookingData.put("companions", new ArrayList<>(companions));
+        bookingData.put("id_image_url", ""); // Initialize empty, will be updated after upload
 
-        // Add booking to Firestore
         db.collection("booking").add(bookingData)
                 .addOnSuccessListener(documentReference -> {
-                    // Successfully created booking, pass the booking ID to the listener
                     String generatedBookingId = documentReference.getId();
-                    listener.onBookingCreated(generatedBookingId); // Pass the ID to the callback
-                })
-                .addOnFailureListener(e -> {
-                    // Handle failure
-                    Toast.makeText(getContext(), "Failed to create booking", Toast.LENGTH_SHORT).show();
+                    uploadImage(generatedBookingId);  // This will update the id_image_url field
+                    listener.onBookingCreated(generatedBookingId);
                 });
     }
+
+
 
     public interface OnBookingCreatedListener {
         void onBookingCreated(String bookingId);
@@ -700,23 +907,20 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
             if (checkInDate != null) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(checkInDate);
+
+                // Add full days first
                 calendar.add(Calendar.DAY_OF_MONTH, days);
+                // Subtract 2 hours for each day booked
+                calendar.add(Calendar.HOUR_OF_DAY, -2 * days);
 
-                // Store the calculated checkout date for Firestore
                 calculatedCheckoutDate = dateFormat.format(calendar.getTime());
-
-                // Log for debugging
                 Log.d("BookingForm", "Calculated checkout date: " + calculatedCheckoutDate);
             }
         } catch (ParseException e) {
             e.printStackTrace();
-            Log.e("BookingForm", "Error calculating checkout date", e);
+            Log.d("BookingForm", "Error calculating checkout date", e);
         }
     }
-
-
-
-
 
     // Format the date for display
     private String formatDate(Calendar calendar) {
@@ -795,10 +999,4 @@ public class bookingformFragment extends Fragment implements DatePickerDialog.On
                 .replace(R.id.mainframe, fragment)
                 .commit();
     }
-
-
-
-
-
-
 }

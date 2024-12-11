@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +19,11 @@ import androidx.core.content.ContextCompat;
 
 import com.finals.centric.databinding.FragmentBookinginfoBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Arrays;
 
@@ -345,20 +349,48 @@ public class bookinginfoFragment extends Fragment {
 
     private void deleteBookingEntryAndBills(String bookingId, String roomId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Get the current user's ID
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
 
-        // Reference to the user's booking entry in Firestore
+        // First get the booking document to retrieve the image URL
         db.collection("booking")
-                .document(bookingId) // Use the bookingId to delete the specific booking
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    // Once the booking is deleted, also delete the associated bill
-                    deleteBillEntry(bookingId); // Call method to delete the bill
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(), "Failed to cancel booking. Try again.", Toast.LENGTH_SHORT).show();
+                .document(bookingId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    String idImageUrl = documentSnapshot.getString("id_image_url");
+
+                    // Delete the image from Storage if URL exists
+                    if (idImageUrl != null && !idImageUrl.isEmpty()) {
+                        // Convert full URL to storage path
+                        StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(idImageUrl);
+                        imageRef.delete()
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("Storage", "ID image deleted successfully");
+                                    // After successful image deletion, proceed with booking deletion
+                                    deleteBookingAndBills(documentSnapshot.getReference(), bookingId);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("Storage", "Error deleting ID image: " + e.getMessage());
+                                    // Still proceed with booking deletion even if image deletion fails
+                                    deleteBookingAndBills(documentSnapshot.getReference(), bookingId);
+                                });
+                    } else {
+                        // If no image URL, proceed directly to booking deletion
+                        deleteBookingAndBills(documentSnapshot.getReference(), bookingId);
+                    }
                 });
     }
+
+    private void deleteBookingAndBills(DocumentReference bookingRef, String bookingId) {
+        bookingRef.delete()
+                .addOnSuccessListener(aVoid -> deleteBillEntry(bookingId))
+                .addOnFailureListener(e -> {
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), "Failed to cancel booking. Try again.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
 
     private void deleteBillEntry(String bookingId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

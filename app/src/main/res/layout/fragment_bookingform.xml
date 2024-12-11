@@ -29,7 +29,7 @@
     <ScrollView
         android:id="@+id/scrollView3"
         android:layout_width="385dp"
-        android:layout_height="640dp"
+        android:layout_height="match_parent"
         android:layout_marginStart="25dp"
         android:layout_marginTop="200dp"
         android:fillViewport="true"
@@ -126,8 +126,8 @@
                 android:layout_marginStart="15dp"
                 android:background="@null"
                 android:clickable="true"
-                android:focusable="false"
                 android:ems="3"
+                android:focusable="false"
                 android:hint="Time"
                 android:inputType="none"
                 android:textSize="15sp"
@@ -170,11 +170,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@null"
-                android:ems="2"
-                android:hint="1"
                 android:clickable="false"
-                android:inputType="number|textNoSuggestions"
+                android:ems="2"
                 android:focusable="false"
+                android:hint="1"
+                android:inputType="number|textNoSuggestions"
                 android:textAlignment="center"
                 android:textSize="15sp"
                 app:layout_constraintBottom_toBottomOf="@+id/imageView21"
@@ -342,14 +342,32 @@
                     android:src="@drawable/booking_form_id_file"
                     app:tint="@color/dblue" />
 
+                <ImageView
+                    android:id="@+id/profileIDPic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_centerInParent="true"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"/>
+
             </androidx.cardview.widget.CardView>
 
             <View
-                android:id="@+id/view4"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/idpicFrame" />
+
+            <TextView
+                android:id="@+id/imageFileName"
+                android:layout_width="290dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:text="Upload a valid ID"
+                app:layout_constraintBottom_toBottomOf="@+id/bookformfieldID"
+                app:layout_constraintStart_toStartOf="@+id/bookformfieldID"
+                app:layout_constraintTop_toTopOf="@+id/bookformfieldID" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
